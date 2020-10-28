@@ -7,4 +7,4 @@
 
 # Laster may be supported by
 jdk:
-  - openjdk8
+  - openjdk11
