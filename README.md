@@ -10,7 +10,7 @@ Microsoft Office Excel 2003 [SpreadsheetML](https://en.wikipedia.org/wiki/Spread
 ExcelReader reader = new ExcelReader();
 Workbook book = reader.getWorkbook(Files.newInputStream(Path.of("1.xml")));
 ReportPage reportPage = new XmlReportPage(book.getWorksheetAt(0));
-TableFactory tableFactory = new ExcelTableFactory();
+TableFactory tableFactory = new XmlTableFactory();
 
 Table table1 = tableFactory.create(reportPage, "Table 1 description", ...);
 ...
