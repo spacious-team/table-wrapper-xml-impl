@@ -46,8 +46,8 @@
     </scm>
 
     <properties>
-        <maven.compiler.source>14</maven.compiler.source>
-        <maven.compiler.target>14</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -64,6 +64,11 @@
             <groupId>com.github.spacious-team</groupId>
             <artifactId>table-wrapper-api</artifactId>
             <version>2020.12</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.VEINHORN</groupId>
+            <artifactId>xelem-wrapper</artifactId>
+            <version>e6fc9c6878</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
