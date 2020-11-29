@@ -19,7 +19,11 @@
 package org.spacious_team.table_wrapper.xml;
 
 import nl.fountain.xelem.excel.Cell;
-import org.spacious_team.table_wrapper.api.*;
+import org.spacious_team.table_wrapper.api.AbstractTable;
+import org.spacious_team.table_wrapper.api.ReportPage;
+import org.spacious_team.table_wrapper.api.TableCellRange;
+import org.spacious_team.table_wrapper.api.TableColumnDescription;
+import org.spacious_team.table_wrapper.api.TableRow;
 
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
