@@ -18,19 +18,12 @@
 
 package org.spacious_team.table_wrapper.xml;
 
-import nl.fountain.xelem.excel.Cell;
 import org.spacious_team.table_wrapper.api.AbstractTable;
 import org.spacious_team.table_wrapper.api.ReportPage;
 import org.spacious_team.table_wrapper.api.TableCellRange;
 import org.spacious_team.table_wrapper.api.TableColumnDescription;
-import org.spacious_team.table_wrapper.api.TableRow;
-
-import java.math.BigDecimal;
-import java.util.regex.Pattern;
 
 public class XmlTable extends AbstractTable {
-
-    private static final Pattern spacePattern = Pattern.compile("\\s");
 
     XmlTable(ReportPage reportPage,
                        String tableName,
@@ -38,46 +31,5 @@ public class XmlTable extends AbstractTable {
                        Class<? extends TableColumnDescription> headerDescription,
                        int headersRowCount) {
         super(reportPage, tableName, tableRange, headerDescription, headersRowCount);
-    }
-
-    @Override
-    public Object getCellValue(TableRow row, TableColumnDescription columnDescription) {
-        return getRawCell((XmlTableRow) row, columnDescription).getData();
-    }
-
-    @Override
-    public int getIntCellValue(TableRow row, TableColumnDescription columnDescription) {
-        return (int) getLongCellValue(row, columnDescription);
-    }
-
-    @Override
-    public long getLongCellValue(TableRow row, TableColumnDescription columnDescription) {
-        Object cellValue = getCellValue(row, columnDescription);
-        if (cellValue instanceof Number) {
-            return ((Number) cellValue).longValue();
-        } else {
-            return Long.parseLong(spacePattern.matcher(cellValue.toString()).replaceAll(""));
-        }
-    }
-
-    @Override
-    public BigDecimal getCurrencyCellValue(TableRow row, TableColumnDescription columnDescription) {
-        Object cellValue = getCellValue(row, columnDescription);
-        double number;
-        if (cellValue instanceof Number) {
-            number = ((Number) cellValue).doubleValue();
-        } else {
-            number = Double.parseDouble(spacePattern.matcher(cellValue.toString()).replaceAll(""));
-        }
-        return (Math.abs(number - 0.01d) < 0) ? BigDecimal.ZERO : BigDecimal.valueOf(number);
-    }
-
-    @Override
-    public String getStringCellValue(TableRow row, TableColumnDescription columnDescription) {
-        return getRawCell((XmlTableRow) row, columnDescription).getData$();
-    }
-
-    private Cell getRawCell(XmlTableRow row, TableColumnDescription columnDescription) {
-        return row.getRow().getCellAt(columnIndices.get(columnDescription.getColumn()) + 1);
     }
 }

@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
 import org.spacious_team.table_wrapper.api.ReportPage;
+import org.spacious_team.table_wrapper.api.ReportPageRow;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 import org.spacious_team.table_wrapper.api.TableRow;
 
@@ -39,7 +40,7 @@ public class XmlReportPage implements ReportPage {
     }
 
     @Override
-    public TableRow getRow(int i) {
+    public ReportPageRow getRow(int i) {
         Row row = sheet.getRowAt(i + 1);
         return (row == null) ? null : new XmlTableRow(row);
     }
