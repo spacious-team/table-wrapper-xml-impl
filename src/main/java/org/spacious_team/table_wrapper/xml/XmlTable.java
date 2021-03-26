@@ -18,18 +18,26 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.ToString;
+import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.AbstractTable;
-import org.spacious_team.table_wrapper.api.ReportPage;
+import org.spacious_team.table_wrapper.api.CellDataAccessObject;
 import org.spacious_team.table_wrapper.api.TableCellRange;
 import org.spacious_team.table_wrapper.api.TableColumnDescription;
 
-public class XmlTable extends AbstractTable {
+@ToString(callSuper = true)
+public class XmlTable extends AbstractTable<XmlTableRow> {
 
-    XmlTable(ReportPage reportPage,
-                       String tableName,
-                       TableCellRange tableRange,
-                       Class<? extends TableColumnDescription> headerDescription,
-                       int headersRowCount) {
+    @Getter(AccessLevel.PROTECTED)
+    private final CellDataAccessObject<?, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANT;
+
+    XmlTable(AbstractReportPage<XmlTableRow> reportPage,
+             String tableName,
+             TableCellRange tableRange,
+             Class<? extends TableColumnDescription> headerDescription,
+             int headersRowCount) {
         super(reportPage, tableName, tableRange, headerDescription, headersRowCount);
     }
 }

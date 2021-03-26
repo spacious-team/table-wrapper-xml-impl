@@ -19,22 +19,22 @@
 package org.spacious_team.table_wrapper.xml;
 
 import org.spacious_team.table_wrapper.api.AbstractTable;
+import org.spacious_team.table_wrapper.api.AbstractTableFactory;
 import org.spacious_team.table_wrapper.api.ReportPage;
 import org.spacious_team.table_wrapper.api.Table;
 import org.spacious_team.table_wrapper.api.TableColumnDescription;
-import org.spacious_team.table_wrapper.api.TableFactory;
 
-public class XmlTableFactory implements TableFactory {
-    @Override
-    public boolean canHandle(ReportPage reportPage) {
-        return (reportPage instanceof XmlReportPage);
+public class XmlTableFactory extends AbstractTableFactory<XmlReportPage> {
+
+    public XmlTableFactory() {
+        super(XmlReportPage.class);
     }
 
     @Override
     public Table create(ReportPage reportPage, String tableName, String tableFooterString,
                         Class<? extends TableColumnDescription> headerDescription,
                         int headersRowCount) {
-        AbstractTable table = new XmlTable(reportPage, tableName,
+        AbstractTable<?> table = new XmlTable(cast(reportPage), tableName,
                 reportPage.getTableCellRange(tableName, headersRowCount, tableFooterString),
                 headerDescription,
                 headersRowCount);
@@ -46,7 +46,7 @@ public class XmlTableFactory implements TableFactory {
     public Table create(ReportPage reportPage, String tableName,
                         Class<? extends TableColumnDescription> headerDescription,
                         int headersRowCount) {
-        AbstractTable table = new XmlTable(reportPage, tableName,
+        AbstractTable<?> table = new XmlTable(cast(reportPage), tableName,
                 reportPage.getTableCellRange(tableName, headersRowCount),
                 headerDescription,
                 headersRowCount);
@@ -58,7 +58,7 @@ public class XmlTableFactory implements TableFactory {
     public Table createOfNoName(ReportPage reportPage, String madeUpTableName, String firstLineText,
                                 Class<? extends TableColumnDescription> headerDescription,
                                 int headersRowCount) {
-        AbstractTable table = new XmlTable(reportPage, madeUpTableName,
+        AbstractTable<?> table = new XmlTable(cast(reportPage), madeUpTableName,
                 getNoNameTableRange(reportPage, firstLineText, headersRowCount),
                 headerDescription,
                 headersRowCount);

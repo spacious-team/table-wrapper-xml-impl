@@ -5,16 +5,15 @@
 Предоставляет реализацию `Table Wrapper API` для удобного доступа к табличным данным, сохраненным в файлах формата
 Microsoft Office Excel 2003 [SpreadsheetML](https://en.wikipedia.org/wiki/SpreadsheetML) (xml).
 
-Пример создания фабрики таблиц
+Пример создания таблиц с первого листа файла `1.xml`
 ```java
 ExcelReader reader = new ExcelReader();
 Workbook book = reader.getWorkbook(Files.newInputStream(Path.of("1.xml")));
 ReportPage reportPage = new XmlReportPage(book.getWorksheetAt(0));
-TableFactory tableFactory = new XmlTableFactory();
 
-Table table1 = tableFactory.create(reportPage, "Table 1 description", ...);
+Table table1 = reportPage.create("Table 1 description", ...);
 ...
-Table tableN = tableFactory.create(reportPage, "Table N description", ...);
+Table tableN = reportPage.create("Table N description", ...);
 ```
 Объекты `table`...`tableN` используются для удобного доступа к строкам и к значениям ячеек.
 

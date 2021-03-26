@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
-import org.spacious_team.table_wrapper.api.ReportPageRow;
+import org.spacious_team.table_wrapper.api.AbstractReportPageRow;
 import org.spacious_team.table_wrapper.api.TableCell;
 
 import java.util.Iterator;
@@ -30,7 +30,7 @@ import java.util.Iterator;
 import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
 
 @RequiredArgsConstructor
-public class XmlTableRow extends ReportPageRow {
+public class XmlTableRow extends AbstractReportPageRow {
 
     @Getter
     private final Row row;

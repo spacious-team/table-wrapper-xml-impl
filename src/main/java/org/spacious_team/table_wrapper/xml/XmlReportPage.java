@@ -21,15 +21,13 @@ package org.spacious_team.table_wrapper.xml;
 import lombok.RequiredArgsConstructor;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
-import org.spacious_team.table_wrapper.api.ReportPage;
-import org.spacious_team.table_wrapper.api.ReportPageRow;
+import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
-import org.spacious_team.table_wrapper.api.TableRow;
 
 import java.util.function.BiPredicate;
 
 @RequiredArgsConstructor
-public class XmlReportPage implements ReportPage {
+public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
 
     private final Worksheet sheet;
 
@@ -40,7 +38,7 @@ public class XmlReportPage implements ReportPage {
     }
 
     @Override
-    public ReportPageRow getRow(int i) {
+    public XmlTableRow getRow(int i) {
         Row row = sheet.getRowAt(i + 1);
         return (row == null) ? null : new XmlTableRow(row);
     }
