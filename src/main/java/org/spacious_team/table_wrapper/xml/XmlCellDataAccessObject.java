@@ -26,7 +26,7 @@ import java.util.Date;
 
 public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTableRow> {
 
-    public static final XmlCellDataAccessObject INSTANT = new XmlCellDataAccessObject();
+    public static final XmlCellDataAccessObject INSTANCE = new XmlCellDataAccessObject();
 
     @Override
     public Cell getCell(XmlTableRow row, Integer cellIndex) {
@@ -35,7 +35,7 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
 
     @Override
     public Object getValue(Cell cell) {
-        return cell.getData();
+        return cell.hasData() ? cell.getData() : null;
     }
 
     @Override

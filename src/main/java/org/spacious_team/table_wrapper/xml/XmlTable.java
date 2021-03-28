@@ -24,6 +24,7 @@ import lombok.ToString;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.AbstractTable;
 import org.spacious_team.table_wrapper.api.CellDataAccessObject;
+import org.spacious_team.table_wrapper.api.Table;
 import org.spacious_team.table_wrapper.api.TableCellRange;
 import org.spacious_team.table_wrapper.api.TableColumnDescription;
 
@@ -31,7 +32,7 @@ import org.spacious_team.table_wrapper.api.TableColumnDescription;
 public class XmlTable extends AbstractTable<XmlTableRow> {
 
     @Getter(AccessLevel.PROTECTED)
-    private final CellDataAccessObject<?, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANT;
+    private final CellDataAccessObject<?, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
 
     XmlTable(AbstractReportPage<XmlTableRow> reportPage,
              String tableName,
@@ -39,5 +40,15 @@ public class XmlTable extends AbstractTable<XmlTableRow> {
              Class<? extends TableColumnDescription> headerDescription,
              int headersRowCount) {
         super(reportPage, tableName, tableRange, headerDescription, headersRowCount);
+    }
+
+    XmlTable(AbstractTable<XmlTableRow> table, int appendDataRowsToTop, int appendDataRowsToBottom) {
+        super(table, appendDataRowsToTop, appendDataRowsToBottom);
+    }
+
+
+    @Override
+    public Table subTable(int topRows, int bottomRows) {
+        return new XmlTable(this, topRows, bottomRows);
     }
 }

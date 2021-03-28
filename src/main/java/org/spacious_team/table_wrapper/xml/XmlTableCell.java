@@ -25,7 +25,7 @@ public class XmlTableCell extends AbstractTableCell<Cell> {
 
 
     public XmlTableCell(Cell cell) {
-        super(cell, XmlCellDataAccessObject.INSTANT);
+        super(cell, XmlCellDataAccessObject.INSTANCE);
     }
 
     @Override

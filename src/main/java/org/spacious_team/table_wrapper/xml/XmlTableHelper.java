@@ -36,7 +36,7 @@ class XmlTableHelper {
         if (tableLastRowNum == -1) {
             return NOT_FOUND;
         } else if (endRow > tableLastRowNum) {
-            endRow = tableLastRowNum;
+            endRow = tableLastRowNum + 1; // endRow is exclusive
         }
         if (value instanceof Number) {
             value = ((Number) value).doubleValue();
