@@ -62,7 +62,7 @@ public class XmlTableFactory extends AbstractTableFactory<XmlReportPage> {
                 getNoNameTableRange(reportPage, firstLineText, headersRowCount),
                 headerDescription,
                 headersRowCount);
-        table.setLastTableRowContainsTotalData(true);
+        table.setLastTableRowContainsTotalData(false);
         return table;
     }
 }
