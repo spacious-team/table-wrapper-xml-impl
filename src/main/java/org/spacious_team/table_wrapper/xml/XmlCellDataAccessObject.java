@@ -1,6 +1,6 @@
 /*
  * Table Wrapper Xml SpreadsheetML Impl
- * Copyright (C) 2020  Vitalii Ananev <an-vitek@ya.ru>
+ * Copyright (C) 2021  Vitalii Ananev <an-vitek@ya.ru>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,17 +19,32 @@
 package org.spacious_team.table_wrapper.xml;
 
 import nl.fountain.xelem.excel.Cell;
-import org.spacious_team.table_wrapper.api.AbstractTableCell;
+import org.spacious_team.table_wrapper.api.CellDataAccessObject;
 
-public class XmlTableCell extends AbstractTableCell<Cell> {
+import java.time.Instant;
+import java.util.Date;
 
+public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTableRow> {
 
-    public XmlTableCell(Cell cell) {
-        super(cell, XmlCellDataAccessObject.INSTANCE);
+    public static final XmlCellDataAccessObject INSTANCE = new XmlCellDataAccessObject();
+
+    @Override
+    public Cell getCell(XmlTableRow row, Integer cellIndex) {
+        return row.getRow().getCellAt(cellIndex + 1);
     }
 
     @Override
-    public int getColumnIndex() {
-        return getCell().getIndex() - 1;
+    public Object getValue(Cell cell) {
+        return cell.hasData() ? cell.getData() : null;
+    }
+
+    @Override
+    public String getStringValue(Cell cell) {
+        return cell.getData$();
+    }
+
+    @Override
+    public Instant getInstantValue(Cell cell) {
+        return ((Date) getValue(cell)).toInstant();
     }
 }

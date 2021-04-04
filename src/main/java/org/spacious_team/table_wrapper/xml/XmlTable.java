@@ -18,62 +18,37 @@
 
 package org.spacious_team.table_wrapper.xml;
 
-import nl.fountain.xelem.excel.Cell;
-import org.spacious_team.table_wrapper.api.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.ToString;
+import org.spacious_team.table_wrapper.api.AbstractReportPage;
+import org.spacious_team.table_wrapper.api.AbstractTable;
+import org.spacious_team.table_wrapper.api.CellDataAccessObject;
+import org.spacious_team.table_wrapper.api.Table;
+import org.spacious_team.table_wrapper.api.TableCellRange;
+import org.spacious_team.table_wrapper.api.TableColumnDescription;
 
-import java.math.BigDecimal;
-import java.util.regex.Pattern;
+@ToString(callSuper = true)
+public class XmlTable extends AbstractTable<XmlTableRow> {
 
-public class XmlTable extends AbstractTable {
+    @Getter(AccessLevel.PROTECTED)
+    private final CellDataAccessObject<?, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
 
-    private static final Pattern spacePattern = Pattern.compile("\\s");
-
-    XmlTable(ReportPage reportPage,
-                       String tableName,
-                       TableCellRange tableRange,
-                       Class<? extends TableColumnDescription> headerDescription,
-                       int headersRowCount) {
+    XmlTable(AbstractReportPage<XmlTableRow> reportPage,
+             String tableName,
+             TableCellRange tableRange,
+             Class<? extends TableColumnDescription> headerDescription,
+             int headersRowCount) {
         super(reportPage, tableName, tableRange, headerDescription, headersRowCount);
     }
 
-    @Override
-    public Object getCellValue(TableRow row, TableColumnDescription columnDescription) {
-        return getRawCell((XmlTableRow) row, columnDescription).getData();
+    XmlTable(AbstractTable<XmlTableRow> table, int appendDataRowsToTop, int appendDataRowsToBottom) {
+        super(table, appendDataRowsToTop, appendDataRowsToBottom);
     }
 
-    @Override
-    public int getIntCellValue(TableRow row, TableColumnDescription columnDescription) {
-        return (int) getLongCellValue(row, columnDescription);
-    }
 
     @Override
-    public long getLongCellValue(TableRow row, TableColumnDescription columnDescription) {
-        Object cellValue = getCellValue(row, columnDescription);
-        if (cellValue instanceof Number) {
-            return ((Number) cellValue).longValue();
-        } else {
-            return Long.parseLong(spacePattern.matcher(cellValue.toString()).replaceAll(""));
-        }
-    }
-
-    @Override
-    public BigDecimal getCurrencyCellValue(TableRow row, TableColumnDescription columnDescription) {
-        Object cellValue = getCellValue(row, columnDescription);
-        double number;
-        if (cellValue instanceof Number) {
-            number = ((Number) cellValue).doubleValue();
-        } else {
-            number = Double.parseDouble(spacePattern.matcher(cellValue.toString()).replaceAll(""));
-        }
-        return (Math.abs(number - 0.01d) < 0) ? BigDecimal.ZERO : BigDecimal.valueOf(number);
-    }
-
-    @Override
-    public String getStringCellValue(TableRow row, TableColumnDescription columnDescription) {
-        return getRawCell((XmlTableRow) row, columnDescription).getData$();
-    }
-
-    private Cell getRawCell(XmlTableRow row, TableColumnDescription columnDescription) {
-        return row.getRow().getCellAt(columnIndices.get(columnDescription.getColumn()) + 1);
+    public Table subTable(int topRows, int bottomRows) {
+        return new XmlTable(this, topRows, bottomRows);
     }
 }

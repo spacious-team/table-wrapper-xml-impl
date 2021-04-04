@@ -19,16 +19,16 @@
 package org.spacious_team.table_wrapper.xml;
 
 import lombok.RequiredArgsConstructor;
+import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
-import org.spacious_team.table_wrapper.api.ReportPage;
+import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
-import org.spacious_team.table_wrapper.api.TableRow;
 
 import java.util.function.BiPredicate;
 
 @RequiredArgsConstructor
-public class XmlReportPage implements ReportPage {
+public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
 
     private final Worksheet sheet;
 
@@ -39,7 +39,7 @@ public class XmlReportPage implements ReportPage {
     }
 
     @Override
-    public TableRow getRow(int i) {
+    public XmlTableRow getRow(int i) {
         Row row = sheet.getRowAt(i + 1);
         return (row == null) ? null : new XmlTableRow(row);
     }
@@ -47,5 +47,32 @@ public class XmlReportPage implements ReportPage {
     @Override
     public int getLastRowNum() {
         return XmlTableHelper.getLastRowNum(sheet);
+    }
+
+    /**
+     * @param startRow first row for check
+     * @return index of first empty row or -1 if not found
+     */
+    @Override
+    public int findEmptyRow(int startRow) {
+        int lastRowNum = startRow;
+        LAST_ROW:
+        for (int n = getLastRowNum(); lastRowNum <= n; lastRowNum++) {
+            Row row = sheet.getRowAt(lastRowNum + 1);
+            if (row == null || row.getCellMap().isEmpty()) {
+                return lastRowNum; // all row cells blank
+            }
+            for (Cell cell : row.getCells()) {
+                Object value;
+                if (!(cell == null
+                        || ((value = XmlCellDataAccessObject.INSTANCE.getValue(cell)) == null)
+                        || (value instanceof String) && (value.toString().isEmpty()))) {
+                    // not empty
+                    continue LAST_ROW;
+                }
+            }
+            return lastRowNum; // all row cells blank
+        }
+        return -1;
     }
 }
