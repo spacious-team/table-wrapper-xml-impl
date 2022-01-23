@@ -30,7 +30,7 @@
     <name>Table Wrapper API Xml SpreadsheetML Implementation</name>
     <description>
         Implements unified Table Wrapper API for SpreadsheetML format and helps to
-        easily search and access to rows, columns, and cell values.
+        easily search and access to row, column, and cell value.
     </description>
     <url>https://github.com/spacious-team/table-wrapper-xml-impl</url>
 
