@@ -43,8 +43,8 @@ class XmlTableHelper {
         }
         for(int rowNum = startRow; rowNum < endRow; rowNum++) {
             Row row = sheet.getRowAt(rowNum + 1);
-            TableCellAddress address;
-            if ((address = find(row, value, startColumn, endColumn, stringPredicate)) != null) {
+            TableCellAddress address = find(row, value, startColumn, endColumn, stringPredicate);
+            if (address != NOT_FOUND) {
                 return address;
             }
         }
@@ -65,7 +65,7 @@ class XmlTableHelper {
                 }
             }
         }
-        return null;
+        return NOT_FOUND;
     }
 
     static int getLastRowNum(Worksheet sheet) {
