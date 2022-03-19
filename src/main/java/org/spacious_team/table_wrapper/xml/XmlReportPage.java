@@ -26,6 +26,7 @@ import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 @RequiredArgsConstructor
 public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
@@ -33,9 +34,14 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
     private final Worksheet sheet;
 
     @Override
-    public TableCellAddress find(Object value, int startRow, int endRow, int startColumn, int endColumn,
-                                 BiPredicate<String, Object> stringPredicate) {
-        return XmlTableHelper.find(sheet, value, startRow, endRow, startColumn, endColumn, stringPredicate);
+    public TableCellAddress find(Object value, int startRow, int endRow, int startColumn, int endColumn) {
+        return XmlTableHelper.find(sheet, value, startRow, endRow, startColumn, endColumn);
+    }
+
+    @Override
+    public TableCellAddress find(int startRow, int endRow, int startColumn, int endColumn, Predicate<Object> cellValuePredicate) {
+        return XmlTableHelper.find(sheet, startRow, endRow, startColumn, endColumn,
+                (cell) -> cellValuePredicate.test(cell.getData()));
     }
 
     @Override

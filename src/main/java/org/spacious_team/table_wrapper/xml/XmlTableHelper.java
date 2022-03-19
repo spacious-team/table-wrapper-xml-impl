@@ -24,26 +24,28 @@ import nl.fountain.xelem.excel.Worksheet;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
 
 class XmlTableHelper {
 
-    static TableCellAddress find(Worksheet sheet, Object value, int startRow, int endRow, int startColumn, int endColumn,
-                                 BiPredicate<String, Object> stringPredicate) {
-        int tableLastRowNum = getLastRowNum(sheet);
-        if (tableLastRowNum == -1) {
-            return NOT_FOUND;
-        } else if (endRow > tableLastRowNum) {
-            endRow = tableLastRowNum + 1; // endRow is exclusive
-        }
-        if (value instanceof Number) {
-            value = ((Number) value).doubleValue();
-        }
-        for(int rowNum = startRow; rowNum < endRow; rowNum++) {
+    static TableCellAddress find(Worksheet sheet, Object expected,
+                                 int startRow, int endRow,
+                                 int startColumn, int endColumn) {
+        return find(sheet, startRow, endRow, startColumn, endColumn, equalsPredicate(expected));
+    }
+
+    static TableCellAddress find(Worksheet sheet, int startRow, int endRow,
+                                 int startColumn, int endColumn,
+                                 Predicate<Cell> predicate) {
+        startRow = Math.max(0, startRow);
+        endRow = Math.min(endRow, getLastRowNum(sheet) + 1); // endRow is exclusive
+        for (int rowNum = startRow; rowNum < endRow; rowNum++) {
             Row row = sheet.getRowAt(rowNum + 1);
-            TableCellAddress address = find(row, value, startColumn, endColumn, stringPredicate);
+            TableCellAddress address = find(row, startColumn, endColumn, predicate);
             if (address != NOT_FOUND) {
                 return address;
             }
@@ -51,14 +53,13 @@ class XmlTableHelper {
         return NOT_FOUND;
     }
 
-    static TableCellAddress find(Row row, Object value, int startColumn, int endColumn,
-                                 BiPredicate<String, Object> stringPredicate) {
+    static TableCellAddress find(Row row, int startColumn, int endColumn, Predicate<Cell> predicate) {
         if (row != null) {
             for (Cell cell : row.getCells()) {
                 if (cell != null) {
                     int column = cell.getIndex() - 1;
                     if (startColumn <= column && column < endColumn) {
-                        if (compare(value, cell, stringPredicate)) {
+                        if (predicate.test(cell)) {
                             return new TableCellAddress(row.getIndex() - 1, column);
                         }
                     }
@@ -72,19 +73,25 @@ class XmlTableHelper {
         return sheet.getTable().getRowMap().lastKey() - 1;
     }
 
-    private static boolean compare(Object value, Cell cell, BiPredicate<String, Object> stringPredicate) {
-        if (value instanceof String) {
-            return stringPredicate.test(cell.getData$(), value);
-        } else if (value instanceof Integer || value instanceof Long) {
-            return cell.intValue() == ((Number) value).longValue();
-        } else if (value instanceof Number) {
-            return Math.abs(cell.doubleValue() - ((Number) value).doubleValue()) < 1e-6;
-        } else if (value instanceof Boolean) {
-            return value.equals(cell.booleanValue());
-        } else if (value instanceof Date) {
-            return value.equals(cell.getData());
+    static Predicate<Cell> equalsPredicate(Object expected) {
+        if (expected instanceof String) {
+            return (cell) -> Objects.equals(cell.getData$(), expected);
+        } else if (expected instanceof Integer || expected instanceof Long) {
+            return (cell) -> {
+                Object data = cell.getData();
+                return (data instanceof Number) &&
+                        ((Number) data).longValue() == ((Number) expected).longValue();
+            };
+        } else if (expected instanceof Number) {
+            return (cell) -> {
+                Object data = cell.getData();
+                return (data instanceof Number) &&
+                        Math.abs(((Number) data).doubleValue() - ((Number) expected).doubleValue()) < 1e-6;
+            };
+        } else if (expected instanceof Boolean) {
+            return (cell) -> Objects.equals(expected, cell.booleanValue());
         } else {
-            return false;
+            return (cell) -> Objects.equals(expected, cell.getData());
         }
     }
 }

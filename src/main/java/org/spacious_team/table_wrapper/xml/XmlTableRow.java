@@ -28,6 +28,7 @@ import org.spacious_team.table_wrapper.api.TableCell;
 import java.util.Iterator;
 
 import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
+import static org.spacious_team.table_wrapper.xml.XmlTableHelper.equalsPredicate;
 
 @RequiredArgsConstructor
 public class XmlTableRow extends AbstractReportPageRow {
@@ -57,8 +58,8 @@ public class XmlTableRow extends AbstractReportPageRow {
     }
 
     @Override
-    public boolean rowContains(Object value) {
-        return XmlTableHelper.find(row, value, 0, Integer.MAX_VALUE, String::equals) != NOT_FOUND;
+    public boolean rowContains(Object expected) {
+        return XmlTableHelper.find(row, 0, Integer.MAX_VALUE, equalsPredicate(expected)) != NOT_FOUND;
     }
 
     @Override
