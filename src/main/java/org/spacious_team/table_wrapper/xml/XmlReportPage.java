@@ -25,7 +25,6 @@ import nl.fountain.xelem.excel.Worksheet;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 @RequiredArgsConstructor

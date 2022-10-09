@@ -23,9 +23,7 @@ import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
-import java.util.Date;
 import java.util.Objects;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
