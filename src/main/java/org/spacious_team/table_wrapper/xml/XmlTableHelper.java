@@ -18,6 +18,7 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.NoArgsConstructor;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
@@ -26,9 +27,11 @@ import org.spacious_team.table_wrapper.api.TableCellAddress;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import static lombok.AccessLevel.PRIVATE;
 import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
 
-class XmlTableHelper {
+@NoArgsConstructor(access = PRIVATE)
+final class XmlTableHelper {
 
     static TableCellAddress find(Worksheet sheet, Object expected,
                                  int startRow, int endRow,
@@ -58,7 +61,7 @@ class XmlTableHelper {
                     int column = cell.getIndex() - 1;
                     if (startColumn <= column && column < endColumn) {
                         if (predicate.test(cell)) {
-                            return new TableCellAddress(row.getIndex() - 1, column);
+                            return TableCellAddress.of(row.getIndex() - 1, column);
                         }
                     }
                 }

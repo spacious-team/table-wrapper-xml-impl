@@ -19,14 +19,17 @@
 package org.spacious_team.table_wrapper.xml;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
 import java.util.function.Predicate;
 
+@Slf4j
 @RequiredArgsConstructor
 public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
 
@@ -44,9 +47,14 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
     }
 
     @Override
-    public XmlTableRow getRow(int i) {
-        Row row = sheet.getRowAt(i + 1);
-        return (row == null) ? null : new XmlTableRow(row);
+    public @Nullable XmlTableRow getRow(int i) {
+        try {
+            Row row = sheet.getRowAt(i + 1);
+            return (row == null) ? null : XmlTableRow.of(row);
+        } catch (IndexOutOfBoundsException e) {
+            log.debug("Row should be greater or equal to 0, got {}", i);
+            return null;
+        }
     }
 
     @Override

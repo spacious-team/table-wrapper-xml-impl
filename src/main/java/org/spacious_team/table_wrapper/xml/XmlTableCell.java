@@ -23,8 +23,11 @@ import org.spacious_team.table_wrapper.api.AbstractTableCell;
 
 public class XmlTableCell extends AbstractTableCell<Cell> {
 
+    public static XmlTableCell of(Cell cell) {
+        return new XmlTableCell(cell);
+    }
 
-    public XmlTableCell(Cell cell) {
+    private XmlTableCell(Cell cell) {
         super(cell, XmlCellDataAccessObject.INSTANCE);
     }
 
