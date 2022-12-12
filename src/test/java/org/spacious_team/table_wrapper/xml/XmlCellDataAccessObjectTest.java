@@ -19,15 +19,17 @@
 package org.spacious_team.table_wrapper.xml;
 
 import nl.fountain.xelem.excel.Cell;
+import nl.fountain.xelem.excel.Row;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Date;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class XmlCellDataAccessObjectTest {
@@ -36,7 +38,22 @@ class XmlCellDataAccessObjectTest {
     XmlCellDataAccessObject dao;
 
     @Mock
+    XmlTableRow row;
+
+    @Mock
     Cell cell;
+
+    @Test
+    void getCell() {
+        int index = 2;
+        Row xmlRow = mock(Row.class);
+        when(row.getRow()).thenReturn(xmlRow);
+
+        dao.getCell(row, index);
+
+        verify(row).getRow();
+        verify(xmlRow).getCellAt(index + 1);
+    }
 
     @Test
     void getValueNull() {
@@ -49,5 +66,23 @@ class XmlCellDataAccessObjectTest {
         when(cell.hasData()).thenReturn(true);
         dao.getValue(cell);
         verify(cell).getData();
+    }
+
+    @Test
+    void getStringValue() {
+        dao.getStringValue(cell);
+        verify(cell).getData$();
+    }
+
+    @Test
+    void getInstantValue() {
+        Date expected = spy(new Date());
+        //noinspection ConstantConditions
+        when(dao.getValue(cell)).thenReturn(expected);
+
+        dao.getInstantValue(cell);
+
+        verify(dao).getValue(cell);
+        verify(expected).toInstant();
     }
 }

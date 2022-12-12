@@ -48,13 +48,11 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
 
     @Override
     public @Nullable XmlTableRow getRow(int i) {
-        try {
-            Row row = sheet.getRowAt(i + 1);
-            return (row == null) ? null : XmlTableRow.of(row);
-        } catch (IndexOutOfBoundsException e) {
-            log.debug("Row should be greater or equal to 0, got {}", i);
+        if (i < 0 || i > getLastRowNum()) {
             return null;
         }
+        Row row = sheet.getRowAt(i + 1);
+        return (row == null) ? null : XmlTableRow.of(row);
     }
 
     @Override
@@ -75,8 +73,8 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
             if (row == null || row.getCellMap().isEmpty()) {
                 return lastRowNum; // all row cells blank
             }
-            for (Cell cell : row.getCells()) {
-                Object value;
+            for (@Nullable Cell cell : row.getCells()) {
+                @Nullable Object value;
                 if (!(cell == null
                         || ((value = XmlCellDataAccessObject.INSTANCE.getValue(cell)) == null)
                         || (value instanceof String) && (value.toString().isEmpty()))) {

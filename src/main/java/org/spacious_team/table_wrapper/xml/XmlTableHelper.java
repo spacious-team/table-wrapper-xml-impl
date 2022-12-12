@@ -22,9 +22,12 @@ import lombok.NoArgsConstructor;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -46,7 +49,7 @@ final class XmlTableHelper {
         endRow = Math.min(endRow, getLastRowNum(sheet) + 1); // endRow is exclusive
         for (int rowNum = startRow; rowNum < endRow; rowNum++) {
             Row row = sheet.getRowAt(rowNum + 1);
-            TableCellAddress address = find(row, startColumn, endColumn, predicate);
+            TableCellAddress address = find(row, rowNum, startColumn, endColumn, predicate);
             if (address != NOT_FOUND) {
                 return address;
             }
@@ -54,14 +57,15 @@ final class XmlTableHelper {
         return NOT_FOUND;
     }
 
-    static TableCellAddress find(Row row, int startColumn, int endColumn, Predicate<Cell> predicate) {
+    static TableCellAddress find(@Nullable Row row, int rowNum, int startColumn, int endColumn, Predicate<Cell> predicate) {
         if (row != null) {
-            for (Cell cell : row.getCells()) {
+            for (Map.Entry<Integer, @Nullable Cell> e : row.getCellMap().entrySet()) {
+                @Nullable Cell cell = e.getValue();
                 if (cell != null) {
-                    int column = cell.getIndex() - 1;
+                    int column = e.getKey() - 1;
                     if (startColumn <= column && column < endColumn) {
                         if (predicate.test(cell)) {
-                            return TableCellAddress.of(row.getIndex() - 1, column);
+                            return TableCellAddress.of(rowNum, column);
                         }
                     }
                 }
@@ -71,7 +75,8 @@ final class XmlTableHelper {
     }
 
     static int getLastRowNum(Worksheet sheet) {
-        return sheet.getTable().getRowMap().lastKey() - 1;
+        TreeMap<Integer, Row> rows = sheet.getTable().getRowMap();
+        return rows.isEmpty() ? -1 : rows.lastKey() - 1;
     }
 
     static Predicate<Cell> equalsPredicate(Object expected) {
