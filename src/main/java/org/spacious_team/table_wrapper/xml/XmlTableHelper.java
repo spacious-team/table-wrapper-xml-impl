@@ -59,8 +59,9 @@ final class XmlTableHelper {
 
     static TableCellAddress find(@Nullable Row row, int rowNum, int startColumn, int endColumn, Predicate<Cell> predicate) {
         if (row != null) {
-            for (Map.Entry<Integer, @Nullable Cell> e : row.getCellMap().entrySet()) {
+            for (Map.Entry<Integer, Cell> e : row.getCellMap().entrySet()) {
                 @Nullable Cell cell = e.getValue();
+                //noinspection ConstantConditions
                 if (cell != null) {
                     int column = e.getKey() - 1;
                     if (startColumn <= column && column < endColumn) {
