@@ -24,7 +24,8 @@ import org.spacious_team.table_wrapper.api.CellDataAccessObject;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTableRow> {
 
@@ -48,7 +49,8 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
     @Override
     public Instant getInstantValue(Cell cell) {
         @Nullable Object value = getValue(cell);
-        Objects.requireNonNull(value, "Not an instant");
-        return ((Date) value).toInstant();
+        @SuppressWarnings("nullness")
+        Object date = requireNonNull(value, "Not an instant");
+        return ((Date) date).toInstant();
     }
 }
