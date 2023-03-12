@@ -18,6 +18,7 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.ToString;
 import nl.fountain.xelem.excel.Cell;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.CellDataAccessObject;
@@ -27,6 +28,7 @@ import java.util.Date;
 
 import static java.util.Objects.requireNonNull;
 
+@ToString
 public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTableRow> {
 
     public static final XmlCellDataAccessObject INSTANCE = new XmlCellDataAccessObject();

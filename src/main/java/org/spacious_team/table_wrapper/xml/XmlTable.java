@@ -18,7 +18,7 @@
 
 package org.spacious_team.table_wrapper.xml;
 
-import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
@@ -28,10 +28,14 @@ import org.spacious_team.table_wrapper.api.Table;
 import org.spacious_team.table_wrapper.api.TableCellRange;
 import org.spacious_team.table_wrapper.api.TableHeaderColumn;
 
+import static lombok.AccessLevel.PROTECTED;
+
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class XmlTable extends AbstractTable<XmlTableRow> {
 
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(PROTECTED)
+    @EqualsAndHashCode.Exclude
     private final CellDataAccessObject<?, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
 
     protected <T extends Enum<T> & TableHeaderColumn>
