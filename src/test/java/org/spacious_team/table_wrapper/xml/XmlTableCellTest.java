@@ -28,9 +28,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.spacious_team.table_wrapper.api.TableCell;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
-import static java.util.Calendar.MARCH;
 import static nl.jqno.equalsverifier.Warning.ALL_FIELDS_SHOULD_BE_USED;
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,7 +68,6 @@ class XmlTableCellTest {
     }
 
     static Object[] cellValues() {
-        //noinspection deprecation
         return new Object[]{
                 1,
                 2f,
@@ -78,11 +79,85 @@ class XmlTableCellTest {
                 Long.MIN_VALUE,
                 BigDecimal.TEN,
                 "string data",
-                new Date(2023, MARCH, 13, 0, 31, 1)
+                new Date()
         };
     }
 
-    //TODO other get methods
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0, 2014})
+    void getIntValue(int expected) {
+        ssCell.setData(expected);
+        TableCell cell = XmlTableCell.of(ssCell);
+        assertEquals(expected, cell.getIntValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {-1, 0, 2014})
+    void getLongValue(long expected) {
+        ssCell.setData(expected);
+        TableCell cell = XmlTableCell.of(ssCell);
+        assertEquals(expected, cell.getLongValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(doubles = {0, 10.24, 10.24000, 10.2400000000001, 10.2400000000000000000000000000000000001})
+    void getDoubleValue(double expected) {
+        ssCell.setData(expected);
+        TableCell cell = XmlTableCell.of(ssCell);
+        assertEquals(expected, cell.getDoubleValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"0", "10.24", "10.24000", "10.2400000000001,", "10.2400000000000000000000000000000000001"})
+    void getBigDecimalValue(String value) {
+        BigDecimal expected = new BigDecimal(value);
+        ssCell.setData(expected);
+        TableCell cell = XmlTableCell.of(ssCell);
+        assertEquals(expected, cell.getBigDecimalValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"10.24", "abc", "This is", "Это есть", "true", "0"})
+    void getStringValue(String expected) {
+        ssCell.setData(expected);
+        TableCell cell = XmlTableCell.of(ssCell);
+        assertEquals(expected, cell.getStringValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2023-03-13T20:15:30Z", "2023-03-13T20:15:30.123Z"})
+    void getInstantValue(String dateTime) {
+        Instant expected = Instant.parse(dateTime);
+        Date cellValue = Date.from(expected);
+        ssCell.setData(cellValue);
+        TableCell cell = XmlTableCell.of(ssCell);
+        assertEquals(expected, cell.getInstantValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2023-03-13T20:15:30.123456Z", "2023-03-13T20:15:30.123456789Z"})
+    void getInstantValue_nanosLost(String dateTime) {
+        Instant instant = Instant.parse(dateTime);
+        Date cellValue = Date.from(instant);
+        ssCell.setData(cellValue);
+        TableCell cell = XmlTableCell.of(ssCell);
+        // xml cell value lost nanos part, calc expected instant
+        Instant expected = Instant.parse("2023-03-13T20:15:30.123Z");
+
+        assertEquals(expected, cell.getInstantValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2023-03-13T20:15:30Z", "2023-03-13T20:15:30.123Z"})
+    void getLocalDateTimeValue(String dateTime) {
+        Instant instant = Instant.parse(dateTime);
+        Date cellValue = Date.from(instant);
+        ssCell.setData(cellValue);
+        TableCell cell = XmlTableCell.of(ssCell);
+        LocalDateTime expected = instant.atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+        assertEquals(expected, cell.getLocalDateTimeValue());
+    }
 
     @Test
     void testEqualsAndHashCode() {

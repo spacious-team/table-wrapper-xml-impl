@@ -24,9 +24,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.CellDataAccessObject;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
 @ToString
 public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTableRow> {
@@ -40,7 +43,13 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
 
     @Override
     public @Nullable Object getValue(Cell cell) {
-        return cell.hasData() ? cell.getData() : null;
+        if (!cell.hasData()) {
+            return null;
+        } else if (Objects.equals(cell.getXLDataType(), "DateTime")) {
+            // cell.getData() loses millis part from cell, use workaround
+            return Date.from(getInstantValue(cell));
+        }
+        return cell.getData();
     }
 
     @Override
@@ -50,9 +59,26 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
 
     @Override
     public Instant getInstantValue(Cell cell) {
-        @Nullable Object value = getValue(cell);
-        @SuppressWarnings("nullness")
-        Object date = requireNonNull(value, "Not an instant");
-        return ((Date) date).toInstant();
+        return getLocalDateTimeValue(cell)
+                .atZone(ZoneId.systemDefault())
+                .toInstant();
+    }
+
+    /**
+     * Xml cell contains local date time, timezone info was lost.
+     * Assume that the timezone was current system default.
+     */
+    @Override
+    public LocalDateTime getLocalDateTimeValue(Cell cell) {
+        String localDateTime = getStringValue(cell);
+        return LocalDateTime.parse(localDateTime, ISO_LOCAL_DATE_TIME);
+    }
+
+    @Override
+    public LocalDateTime getLocalDateTimeValue(Cell cell, ZoneId zoneId) {
+        return getLocalDateTimeValue(cell)
+                .atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(zoneId)
+                .toLocalDateTime();
     }
 }
