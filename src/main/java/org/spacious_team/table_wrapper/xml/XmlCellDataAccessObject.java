@@ -57,6 +57,10 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
         return cell.getData$();
     }
 
+    /**
+     * Xml cell contains local date time without timezone,
+     * so method returns different instant depending on {@code ZoneId.systemDefault()}
+     */
     @Override
     public Instant getInstantValue(Cell cell) {
         return getLocalDateTimeValue(cell)
@@ -65,8 +69,7 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
     }
 
     /**
-     * Xml cell contains local date time, timezone info was lost.
-     * Assume that the timezone was current system default.
+     * Xml cell contains local date time without timezone. Method just returns it.
      */
     @Override
     public LocalDateTime getLocalDateTimeValue(Cell cell) {
@@ -74,6 +77,13 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
         return LocalDateTime.parse(localDateTime, ISO_LOCAL_DATE_TIME);
     }
 
+    /**
+     * Xml cell contains local date time without timezone.
+     * Combines xml cell date time with {@code ZoneId.systemDefault()} to build {@code Instant}.
+     * Returns local date time of built {@code Instant} withing requested zoneId.
+     * <br>
+     * Method returns different instant depending on {@code ZoneId.systemDefault()}
+     */
     @Override
     public LocalDateTime getLocalDateTimeValue(Cell cell, ZoneId zoneId) {
         return getLocalDateTimeValue(cell)

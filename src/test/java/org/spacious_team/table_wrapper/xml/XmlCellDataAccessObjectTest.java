@@ -22,13 +22,19 @@ import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,13 +62,25 @@ class XmlCellDataAccessObjectTest {
     }
 
     @Test
-    void getValueNull() {
+    void getValue_null() {
         when(cell.hasData()).thenReturn(false);
         assertNull(dao.getValue(cell));
     }
 
     @Test
-    void getValue() {
+    void getValue_date() {
+        when(cell.hasData()).thenReturn(true);
+        when(cell.getXLDataType()).thenReturn("DateTime");
+        doReturn(Instant.now()).when(dao).getInstantValue(cell);
+
+        dao.getValue(cell);
+
+        verify(cell, never()).getData();
+        verify(dao).getInstantValue(cell);
+    }
+
+    @Test
+    void getValue_otherTypes() {
         when(cell.hasData()).thenReturn(true);
         dao.getValue(cell);
         verify(cell).getData();
@@ -76,13 +94,52 @@ class XmlCellDataAccessObjectTest {
 
     @Test
     void getInstantValue() {
-        Date expected = spy(new Date());
-        //noinspection ConstantConditions
-        when(dao.getValue(cell)).thenReturn(expected);
+        String dateTime = "2023-03-22T06:33:00";
+        Instant expected = LocalDateTime.of(2023, 3, 22, 6, 33, 0)
+                .atZone(ZoneId.systemDefault())
+                .toInstant();
+        when(dao.getStringValue(cell)).thenReturn(dateTime);
 
-        dao.getInstantValue(cell);
+        Instant actual = dao.getInstantValue(cell);
 
-        verify(dao).getValue(cell);
-        verify(expected).toInstant();
+        assertEquals(expected, actual);
+        verify(dao).getLocalDateTimeValue(cell);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2023-03-22T06:33:00",
+            "2023-03-22T06:33:00.100",
+            "2023-03-22T06:33:00.100200",
+            "2023-03-22T06:33:00.100200300"})
+    void getLocalDateTime(String dateTime) {
+        LocalDateTime expected = LocalDateTime.parse(dateTime, ISO_LOCAL_DATE_TIME);
+        when(dao.getStringValue(cell)).thenReturn(dateTime);
+
+        LocalDateTime actual = dao.getLocalDateTimeValue(cell);
+
+        assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"UTC", "Europe/Moscow", "Asia/Novosibirsk"})
+    void getLocalDateTimeWithZoneId(String zoneIdName) {
+        String dateTime = "2023-03-22T06:33:00";
+        ZoneId zoneId = ZoneId.of(zoneIdName);
+        LocalDateTime expected = LocalDateTime.of(2023, 3, 22, 6, 33, 0)
+                .atZone(ZoneId.systemDefault())
+                .withZoneSameInstant(zoneId)
+                .toLocalDateTime();
+        when(dao.getStringValue(cell)).thenReturn(dateTime);
+
+        LocalDateTime actual = dao.getLocalDateTimeValue(cell, zoneId);
+
+        assertEquals(expected, actual);
+        verify(dao).getLocalDateTimeValue(cell);
+    }
+
+    @Test
+    void testToString() {
+        assertEquals("XmlCellDataAccessObject()", dao.toString());
     }
 }
