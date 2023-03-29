@@ -64,7 +64,7 @@ final class XmlTableHelper {
                 //noinspection ConstantConditions
                 if (cell != null) {
                     int column = e.getKey() - 1;
-                    if (startColumn <= column && column < endColumn) {
+                    if ((startColumn <= column) && (column < endColumn)) {
                         if (predicate.test(cell)) {
                             return TableCellAddress.of(rowNum, column);
                         }

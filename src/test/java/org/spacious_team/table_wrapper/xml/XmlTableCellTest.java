@@ -35,7 +35,8 @@ import java.util.Date;
 
 import static nl.jqno.equalsverifier.Warning.ALL_FIELDS_SHOULD_BE_USED;
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class XmlTableCellTest {
 
@@ -108,7 +109,7 @@ class XmlTableCellTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"0", "10.24", "10.24000", "10.2400000000001,", "10.2400000000000000000000000000000000001"})
+    @ValueSource(strings = {"0", "10.24", "10.24000", "10.2400000000001", "10.2400000000000000000000000000000000001"})
     void getBigDecimalValue(String value) {
         BigDecimal expected = new BigDecimal(value);
         ssCell.setData(expected);
@@ -157,6 +158,18 @@ class XmlTableCellTest {
         LocalDateTime expected = instant.atZone(ZoneId.systemDefault())
                         .toLocalDateTime();
         assertEquals(expected, cell.getLocalDateTimeValue());
+    }
+
+    @Test
+    void createWithCellDataAccessObject() {
+        XmlTableCell cell = XmlTableCell.of(ssCell);
+        XmlCellDataAccessObject dao = mock(XmlCellDataAccessObject.class);
+
+        XmlTableCell actual = cell.createWithCellDataAccessObject(dao);
+
+        assertNotSame(cell, actual);
+        assertNotSame(dao, cell.getCellDataAccessObject());
+        assertSame(dao, actual.getCellDataAccessObject());
     }
 
     @Test

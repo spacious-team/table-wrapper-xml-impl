@@ -18,6 +18,8 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import nl.fountain.xelem.excel.Cell;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -32,9 +34,12 @@ import java.util.Objects;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
 @ToString
+@EqualsAndHashCode
+@RequiredArgsConstructor(staticName = "of")
 public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTableRow> {
 
-    public static final XmlCellDataAccessObject INSTANCE = new XmlCellDataAccessObject();
+    public static final XmlCellDataAccessObject INSTANCE = new XmlCellDataAccessObject(ZoneId.systemDefault());
+    private final ZoneId defaultZoneId;
 
     @Override
     public @Nullable Cell getCell(XmlTableRow row, Integer cellIndex) {
@@ -59,12 +64,12 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
 
     /**
      * Xml cell contains local date time without timezone,
-     * so method returns different instant depending on {@code ZoneId.systemDefault()}
+     * so method returns different instant depending on configured {@link #defaultZoneId}
      */
     @Override
     public Instant getInstantValue(Cell cell) {
         return getLocalDateTimeValue(cell)
-                .atZone(ZoneId.systemDefault())
+                .atZone(defaultZoneId)
                 .toInstant();
     }
 
@@ -79,7 +84,7 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
 
     /**
      * Xml cell contains local date time without timezone.
-     * Combines xml cell date time with {@code ZoneId.systemDefault()} to build {@code Instant}.
+     * Combines xml cell date time with configured {@link #defaultZoneId} to build {@code Instant}.
      * Returns local date time of built {@code Instant} withing requested zoneId.
      * <br>
      * Method returns different instant depending on {@code ZoneId.systemDefault()}
@@ -87,7 +92,7 @@ public class XmlCellDataAccessObject implements CellDataAccessObject<Cell, XmlTa
     @Override
     public LocalDateTime getLocalDateTimeValue(Cell cell, ZoneId zoneId) {
         return getLocalDateTimeValue(cell)
-                .atZone(ZoneId.systemDefault())
+                .atZone(defaultZoneId)
                 .withZoneSameInstant(zoneId)
                 .toLocalDateTime();
     }

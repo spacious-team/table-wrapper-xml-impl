@@ -20,7 +20,9 @@ package org.spacious_team.table_wrapper.xml;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import nl.fountain.xelem.excel.Cell;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.AbstractTable;
 import org.spacious_team.table_wrapper.api.CellDataAccessObject;
@@ -28,15 +30,14 @@ import org.spacious_team.table_wrapper.api.Table;
 import org.spacious_team.table_wrapper.api.TableCellRange;
 import org.spacious_team.table_wrapper.api.TableHeaderColumn;
 
-import static lombok.AccessLevel.PROTECTED;
-
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class XmlTable extends AbstractTable<XmlTableRow> {
+public class XmlTable extends AbstractTable<XmlTableRow, Cell> {
 
-    @Getter(PROTECTED)
+    @Getter
+    @Setter
     @EqualsAndHashCode.Exclude
-    private final CellDataAccessObject<?, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
+    private CellDataAccessObject<Cell, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
 
     protected <T extends Enum<T> & TableHeaderColumn>
     XmlTable(AbstractReportPage<XmlTableRow> reportPage,
@@ -47,7 +48,7 @@ public class XmlTable extends AbstractTable<XmlTableRow> {
         super(reportPage, tableName, tableRange, headerDescription, headersRowCount);
     }
 
-    protected XmlTable(AbstractTable<XmlTableRow> table, int appendDataRowsToTop, int appendDataRowsToBottom) {
+    protected XmlTable(AbstractTable<XmlTableRow, Cell> table, int appendDataRowsToTop, int appendDataRowsToBottom) {
         super(table, appendDataRowsToTop, appendDataRowsToBottom);
     }
 

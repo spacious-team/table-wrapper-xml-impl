@@ -51,10 +51,20 @@ class XmlTableTest {
     }
 
     @Test
+    void setCellDataAccessObject() {
+        XmlCellDataAccessObject dao = mock(XmlCellDataAccessObject.class);
+        assertSame(XmlCellDataAccessObject.INSTANCE, xmlTable.getCellDataAccessObject());
+
+        xmlTable.setCellDataAccessObject(dao);
+
+        assertSame(dao, xmlTable.getCellDataAccessObject());
+    }
+
+    @Test
     void subTable() {
         int addToTop = 3;
         int addToBottom = -2;
-        AbstractTable<?> subTable = (AbstractTable<?>) xmlTable.subTable(addToTop, addToBottom);
+        AbstractTable<?, ?> subTable = (AbstractTable<?, ?>) xmlTable.subTable(addToTop, addToBottom);
 
         assertSame(xmlTable.getReportPage(), subTable.getReportPage());
         assertEquals(tableRange.addRowsToTop(addToTop).addRowsToBottom(addToBottom),
@@ -73,7 +83,7 @@ class XmlTableTest {
     @Test
     void testToString() {
         assertEquals("XmlTable(super=AbstractTable(tableName=table name), " +
-                        "cellDataAccessObject=XmlCellDataAccessObject())",
+                        "cellDataAccessObject=XmlCellDataAccessObject(defaultZoneId=Europe/Moscow))",
                 xmlTable.toString());
     }
 
