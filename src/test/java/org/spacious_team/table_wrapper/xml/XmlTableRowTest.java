@@ -51,7 +51,7 @@ class XmlTableRowTest {
 
     @Test
     void getCell_Null() {
-        when(xmlRow.getCellAt(eq(1))).thenReturn(null);
+        when(xmlRow.getCellAt(1)).thenReturn(null);
 
         @Nullable TableCell cell = row.getCell(0);
 
@@ -62,7 +62,7 @@ class XmlTableRowTest {
     @Test
     void getCell_nonNull() {
         Cell xmlCell = mock(Cell.class);
-        when(xmlRow.getCellAt(eq(1))).thenReturn(xmlCell);
+        when(xmlRow.getCellAt(1)).thenReturn(xmlCell);
 
         @Nullable TableCell cell = row.getCell(0);
 
