@@ -29,6 +29,8 @@ import org.spacious_team.table_wrapper.api.TableCellRange;
 import org.spacious_team.table_wrapper.api.TableColumn;
 import org.spacious_team.table_wrapper.api.TableHeaderColumn;
 
+import java.time.ZoneOffset;
+
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -82,8 +84,10 @@ class XmlTableTest {
 
     @Test
     void testToString() {
+        XmlCellDataAccessObject dataAccessObject = XmlCellDataAccessObject.of(ZoneOffset.UTC);
+        xmlTable.setCellDataAccessObject(dataAccessObject);
         assertEquals("XmlTable(super=AbstractTable(tableName=table name), " +
-                        "cellDataAccessObject=XmlCellDataAccessObject(defaultZoneId=Europe/Moscow))",
+                        "cellDataAccessObject=XmlCellDataAccessObject(defaultZoneId=Z))",
                 xmlTable.toString());
     }
 
