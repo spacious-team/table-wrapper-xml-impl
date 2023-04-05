@@ -74,7 +74,7 @@ public class XmlTableRow extends AbstractReportPageRow {
     }
 
     @Override
-    public boolean rowContains(Object expected) {
+    public boolean rowContains(@Nullable Object expected) {
         return XmlTableHelper.find(row, row.getIndex() - 1, 0, Integer.MAX_VALUE, equalsPredicate(expected)) != NOT_FOUND;
     }
 
