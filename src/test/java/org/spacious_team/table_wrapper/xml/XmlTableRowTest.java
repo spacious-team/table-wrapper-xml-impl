@@ -161,7 +161,6 @@ class XmlTableRowTest {
         assertTrue(row.rowContains(6.66));
         assertTrue(row.rowContains(7));
         assertTrue(row.rowContains(true));
-        assertTrue(row.rowContains(false));  // matches any not Boolean cell value
         assertTrue(row.rowContains(instant));
         assertTrue(row.rowContains(Date.from(instant)));
         assertTrue(row.rowContains("A"));
@@ -170,6 +169,7 @@ class XmlTableRowTest {
         assertFalse(row.rowContains(8));
         assertFalse(row.rowContains(BigDecimal.valueOf(9.1)));
         assertFalse(row.rowContains(BigInteger.valueOf(10)));
+        assertFalse(row.rowContains(false));
         assertFalse(row.rowContains(Instant.now()));
         assertFalse(row.rowContains(Date.from(Instant.now())));
         assertFalse(row.rowContains('B'));

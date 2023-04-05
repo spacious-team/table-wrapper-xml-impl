@@ -85,23 +85,24 @@ final class XmlTableHelper {
         return rows.isEmpty() ? -1 : rows.lastKey() - 1;
     }
 
-    static Predicate<Cell> equalsPredicate(Object expected) {
+    static Predicate<Cell> equalsPredicate(@Nullable Object expected) {
         if (expected instanceof String) {
-            return (cell) -> Objects.equals(cell.getData$(), expected);
+            return cell -> Objects.equals(cell.getData$(), expected);
         } else if (expected instanceof Integer || expected instanceof Long) {
-            return (cell) -> {
+            return cell -> {
                 Object data = cell.getData();
                 return (data instanceof Number) &&
                         ((Number) data).longValue() == ((Number) expected).longValue();
             };
         } else if (expected instanceof Number) {
-            return (cell) -> {
+            return cell -> {
                 Object data = cell.getData();
                 return (data instanceof Number) &&
                         Math.abs(((Number) data).doubleValue() - ((Number) expected).doubleValue()) < 1e-6;
             };
         } else if (expected instanceof Boolean) {
-            return (cell) -> Objects.equals(expected, cell.booleanValue());
+            return cell -> Objects.equals("Boolean", cell.getXLDataType()) &&
+                    Objects.equals(expected, cell.booleanValue());
         } else if (expected instanceof Temporal) {
             Instant instant;
             if (expected instanceof Instant) {
@@ -115,6 +116,8 @@ final class XmlTableHelper {
             }
             Date date = Date.from(instant);
             return cell -> Objects.equals(date, cell.getData());
+        } else if (expected == null) {
+            return cell -> Objects.equals("#N/A", cell.getData());
         } else {
             return cell -> Objects.equals(expected, cell.getData());
         }
