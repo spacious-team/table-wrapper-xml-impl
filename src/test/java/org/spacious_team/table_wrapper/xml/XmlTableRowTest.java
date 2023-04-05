@@ -35,7 +35,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +51,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static java.time.ZoneOffset.UTC;
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -136,18 +139,22 @@ class XmlTableRowTest {
     @Test
     void rowContains() {
         Instant instant = LocalDateTime.of(2023, 4, 5, 20, 44, 1)
-                .atZone(ZoneOffset.UTC)
+                .atZone(UTC)
                 .toInstant();
         AtomicInteger adder = new AtomicInteger();
-        Map<Integer, Cell> cells = Stream.of(null, "test",
+        Map<Integer, Cell> cells = Stream.of(null, "test", true, 'A',
                         1, 2L, 3.1f, 3.2, (byte) 4, (short) 5, BigDecimal.valueOf(6.66), BigInteger.valueOf(7),
-                        true, Date.from(instant), 'A')
+                        Date.from(instant), ZonedDateTime.ofInstant(instant, UTC), OffsetDateTime.ofInstant(instant, UTC))
                 .map(XmlTableRowTest::toCell)
                 .collect(Collectors.toMap($ -> adder.incrementAndGet(), Function.identity()));
         when(xmlRow.getCellMap()).thenReturn(new TreeMap<>(cells));
         when(xmlRow.getIndex()).thenReturn(1);
 
+        //noinspection ConstantConditions
+        assertTrue(row.rowContains(null));
         assertTrue(row.rowContains("test"));
+        assertTrue(row.rowContains(true));
+        assertTrue(row.rowContains("A"));
         assertTrue(row.rowContains(1));
         assertTrue(row.rowContains(1L));
         assertTrue(row.rowContains(2));
@@ -160,26 +167,29 @@ class XmlTableRowTest {
         assertTrue(row.rowContains(5));
         assertTrue(row.rowContains(6.66));
         assertTrue(row.rowContains(7));
-        assertTrue(row.rowContains(true));
         assertTrue(row.rowContains(instant));
         assertTrue(row.rowContains(Date.from(instant)));
-        assertTrue(row.rowContains("A"));
+        assertTrue(row.rowContains(ZonedDateTime.ofInstant(instant, ZoneId.of("Europe/Paris"))));
+        assertTrue(row.rowContains(OffsetDateTime.ofInstant(instant, ZoneId.of("Europe/Paris"))));
 
         assertFalse(row.rowContains("test2"));
+        assertFalse(row.rowContains(false));
+        assertFalse(row.rowContains('B'));
+        assertFalse(row.rowContains("B"));
         assertFalse(row.rowContains(8));
         assertFalse(row.rowContains(BigDecimal.valueOf(9.1)));
         assertFalse(row.rowContains(BigInteger.valueOf(10)));
-        assertFalse(row.rowContains(false));
         assertFalse(row.rowContains(Instant.now()));
         assertFalse(row.rowContains(Date.from(Instant.now())));
-        assertFalse(row.rowContains('B'));
-        assertFalse(row.rowContains("B"));
+        assertFalse(row.rowContains(ZonedDateTime.ofInstant(Instant.now(), UTC)));
+        assertFalse(row.rowContains(OffsetDateTime.ofInstant(Instant.now(), UTC)));
+        assertFalse(row.rowContains(LocalDateTime.now()));
     }
 
     @Test
     void iterator() {
         Instant instant = LocalDateTime.of(2023, 4, 5, 20, 44, 1)
-                .atZone(ZoneOffset.UTC)
+                .atZone(UTC)
                 .toInstant();
         Collection<@Nullable Cell> cells = Stream.of(null, "test",
                         1, 2L, 3.1f, 3.2, (byte) 4, (short) 5, BigDecimal.valueOf(6.66), BigInteger.valueOf(7),
