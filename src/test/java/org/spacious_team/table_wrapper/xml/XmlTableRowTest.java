@@ -20,6 +20,7 @@ package org.spacious_team.table_wrapper.xml;
 
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
+import nl.fountain.xelem.excel.ss.SSCell;
 import nl.fountain.xelem.excel.ss.SSRow;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -30,8 +31,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.spacious_team.table_wrapper.api.TableCell;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Spliterators;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,6 +63,11 @@ class XmlTableRowTest {
     @BeforeEach
     void beforeEach() {
         row = XmlTableRow.of(xmlRow);
+    }
+
+    @Test
+    void getRow() {
+        assertSame(xmlRow, row.getRow());
     }
 
     @Test
@@ -114,18 +135,86 @@ class XmlTableRowTest {
 
     @Test
     void rowContains() {
+        Instant instant = LocalDateTime.of(2023, 4, 5, 20, 44, 1)
+                .atZone(ZoneOffset.UTC)
+                .toInstant();
+        AtomicInteger adder = new AtomicInteger();
+        Map<Integer, Cell> cells = Stream.of(null, "test",
+                        1, 2L, 3.1f, 3.2, (byte) 4, (short) 5, BigDecimal.valueOf(6.66), BigInteger.valueOf(7),
+                        true, Date.from(instant), 'A')
+                .map(XmlTableRowTest::toCell)
+                .collect(Collectors.toMap($ -> adder.incrementAndGet(), Function.identity()));
+        when(xmlRow.getCellMap()).thenReturn(new TreeMap<>(cells));
+        when(xmlRow.getIndex()).thenReturn(1);
+
+        assertTrue(row.rowContains("test"));
+        assertTrue(row.rowContains(1));
+        assertTrue(row.rowContains(1L));
+        assertTrue(row.rowContains(2));
+        assertTrue(row.rowContains(2L));
+        assertTrue(row.rowContains(3.1f));
+        assertTrue(row.rowContains(3.1));
+        assertTrue(row.rowContains(3.2f));
+        assertTrue(row.rowContains(3.2));
+        assertTrue(row.rowContains(4));
+        assertTrue(row.rowContains(5));
+        assertTrue(row.rowContains(6.66));
+        assertTrue(row.rowContains(7));
+        assertTrue(row.rowContains(true));
+        assertTrue(row.rowContains(false));  // matches any not Boolean cell value
+        assertTrue(row.rowContains(instant));
+        assertTrue(row.rowContains(Date.from(instant)));
+        assertTrue(row.rowContains("A"));
+
+        assertFalse(row.rowContains("test2"));
+        assertFalse(row.rowContains(8));
+        assertFalse(row.rowContains(BigDecimal.valueOf(9.1)));
+        assertFalse(row.rowContains(BigInteger.valueOf(10)));
+        assertFalse(row.rowContains(Instant.now()));
+        assertFalse(row.rowContains(Date.from(Instant.now())));
+        assertFalse(row.rowContains('B'));
+        assertFalse(row.rowContains("B"));
     }
 
     @Test
     void iterator() {
+        Instant instant = LocalDateTime.of(2023, 4, 5, 20, 44, 1)
+                .atZone(ZoneOffset.UTC)
+                .toInstant();
+        Collection<@Nullable Cell> cells = Stream.of(null, "test",
+                        1, 2L, 3.1f, 3.2, (byte) 4, (short) 5, BigDecimal.valueOf(6.66), BigInteger.valueOf(7),
+                        true, Date.from(instant), 'A')
+                .map(XmlTableRowTest::toCell)
+                .collect(Collectors.toList());
+        cells.add(null);
+        when(xmlRow.getCells()).thenReturn(cells);
+        Collection<@Nullable XmlTableCell> expected = cells.stream()
+                .filter(Objects::nonNull)
+                .map(XmlTableCell::of)
+                .collect(Collectors.toList());
+        expected.add(null);
+
+        List<TableCell> actual = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(row.iterator(), 0), false)
+                .collect(Collectors.toList());
+
+        assertEquals(expected, actual);
     }
 
-    @Test
-    void of() {
-    }
-
-    @Test
-    void getRow() {
+    static Cell toCell(Object v) {
+        Cell cell = new SSCell();
+        if (v instanceof Byte) {
+            cell.setData((byte) v);  // no method with reference arg
+        } else if (v instanceof Short) {
+            cell.setData((short) v);  // no method with reference arg
+        } else if (v instanceof Character) {
+            cell.setData((char) v);  // no method with reference arg
+        } else if (v instanceof BigInteger) {
+            cell.setData((Number) v);  // select correct impl
+        } else {
+            cell.setData(v);
+        }
+        return cell;
     }
 
     @Test

@@ -25,6 +25,11 @@ import nl.fountain.xelem.excel.Worksheet;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -97,8 +102,21 @@ final class XmlTableHelper {
             };
         } else if (expected instanceof Boolean) {
             return (cell) -> Objects.equals(expected, cell.booleanValue());
+        } else if (expected instanceof Temporal) {
+            Instant instant;
+            if (expected instanceof Instant) {
+                instant = (Instant) expected;
+            } else if (expected instanceof ZonedDateTime) {
+                instant = ((ZonedDateTime) expected).toInstant();
+            } else if (expected instanceof OffsetDateTime) {
+                instant = ((OffsetDateTime) expected).toInstant();
+            } else {
+                return cell -> false;
+            }
+            Date date = Date.from(instant);
+            return cell -> Objects.equals(date, cell.getData());
         } else {
-            return (cell) -> Objects.equals(expected, cell.getData());
+            return cell -> Objects.equals(expected, cell.getData());
         }
     }
 }
