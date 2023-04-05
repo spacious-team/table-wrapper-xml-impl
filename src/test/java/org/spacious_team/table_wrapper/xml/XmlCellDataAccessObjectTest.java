@@ -19,35 +19,140 @@
 package org.spacious_team.table_wrapper.xml;
 
 import nl.fountain.xelem.excel.Cell;
+import nl.fountain.xelem.excel.Row;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class XmlCellDataAccessObjectTest {
 
+    static ZoneOffset configuredZoneId = ZoneOffset.UTC;
+
     @Spy
-    XmlCellDataAccessObject dao;
+    XmlCellDataAccessObject dao = XmlCellDataAccessObject.of(configuredZoneId);
+
+    @Mock
+    XmlTableRow row;
 
     @Mock
     Cell cell;
 
     @Test
-    void getValueNull() {
+    void getCell() {
+        int index = 2;
+        Row xmlRow = mock(Row.class);
+        when(row.getRow()).thenReturn(xmlRow);
+
+        dao.getCell(row, index);
+
+        verify(row).getRow();
+        verify(xmlRow).getCellAt(index + 1);
+    }
+
+    @Test
+    void getValue_null() {
         when(cell.hasData()).thenReturn(false);
         assertNull(dao.getValue(cell));
     }
 
     @Test
-    void getValue() {
+    void getValue_date() {
+        when(cell.hasData()).thenReturn(true);
+        when(cell.getXLDataType()).thenReturn("DateTime");
+        doReturn(Instant.now()).when(dao).getInstantValue(cell);
+
+        dao.getValue(cell);
+
+        verify(cell, never()).getData();
+        verify(dao).getInstantValue(cell);
+    }
+
+    @Test
+    void getValue_otherTypes() {
         when(cell.hasData()).thenReturn(true);
         dao.getValue(cell);
         verify(cell).getData();
+    }
+
+    @Test
+    void getStringValue() {
+        dao.getStringValue(cell);
+        verify(cell).getData$();
+    }
+
+    @Test
+    void getInstantValue() {
+        String dateTime = "2023-03-22T06:33:00";
+        Instant expected = LocalDateTime.of(2023, 3, 22, 6, 33, 0)
+                .atZone(configuredZoneId)
+                .toInstant();
+        when(dao.getStringValue(cell)).thenReturn(dateTime);
+
+        Instant actual = dao.getInstantValue(cell);
+
+        assertEquals(expected, actual);
+        verify(dao).getLocalDateTimeValue(cell);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "2023-03-22T06:33:00",
+            "2023-03-22T06:33:00.100",
+            "2023-03-22T06:33:00.100200",
+            "2023-03-22T06:33:00.100200300"})
+    void getLocalDateTime(String dateTime) {
+        LocalDateTime expected = LocalDateTime.parse(dateTime, ISO_LOCAL_DATE_TIME);
+        when(dao.getStringValue(cell)).thenReturn(dateTime);
+
+        LocalDateTime actual = dao.getLocalDateTimeValue(cell);
+
+        assertEquals(expected, actual);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"UTC", "Europe/Moscow", "Asia/Novosibirsk"})
+    void getLocalDateTimeWithZoneId(String zoneIdName) {
+        String dateTime = "2023-03-22T06:33:00";
+        ZoneId zoneId = ZoneId.of(zoneIdName);
+        LocalDateTime expected = LocalDateTime.of(2023, 3, 22, 6, 33, 0)
+                .atZone(configuredZoneId)
+                .withZoneSameInstant(zoneId)
+                .toLocalDateTime();
+        when(dao.getStringValue(cell)).thenReturn(dateTime);
+
+        LocalDateTime actual = dao.getLocalDateTimeValue(cell, zoneId);
+
+        assertEquals(expected, actual);
+        verify(dao).getLocalDateTimeValue(cell);
+    }
+
+    @Test
+    void testEqualsAndHashCode() {
+        EqualsVerifier
+                .forClass(XmlCellDataAccessObject.class)
+                .suppress(STRICT_INHERITANCE) // no subclass for test
+                .verify();
+    }
+
+    @Test
+    void testToString() {
+        assertEquals("XmlCellDataAccessObject(defaultZoneId=Z)", dao.toString());
     }
 }

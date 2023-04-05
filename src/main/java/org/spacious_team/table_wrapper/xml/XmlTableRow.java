@@ -18,8 +18,10 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -34,6 +36,8 @@ import static lombok.AccessLevel.PACKAGE;
 import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
 import static org.spacious_team.table_wrapper.xml.XmlTableHelper.equalsPredicate;
 
+@ToString
+@EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor(staticName = "of")
 public class XmlTableRow extends AbstractReportPageRow {
 
@@ -62,12 +66,16 @@ public class XmlTableRow extends AbstractReportPageRow {
 
     @Override
     public int getLastCellNum() {
-        return row.getCellMap().lastKey() - 1;
+        try {
+            return row.getCellMap().lastKey() - 1;
+        } catch (NoSuchElementException ignore) {
+            return -1;
+        }
     }
 
     @Override
-    public boolean rowContains(Object expected) {
-        return XmlTableHelper.find(row, 0, Integer.MAX_VALUE, equalsPredicate(expected)) != NOT_FOUND;
+    public boolean rowContains(@Nullable Object expected) {
+        return XmlTableHelper.find(row, row.getIndex() - 1, 0, Integer.MAX_VALUE, equalsPredicate(expected)) != NOT_FOUND;
     }
 
     @Override

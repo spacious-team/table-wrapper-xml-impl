@@ -18,21 +18,46 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import nl.fountain.xelem.excel.Cell;
 import org.spacious_team.table_wrapper.api.AbstractTableCell;
 
-public class XmlTableCell extends AbstractTableCell<Cell> {
+@ToString
+@EqualsAndHashCode(callSuper = false)
+public class XmlTableCell extends AbstractTableCell<Cell, XmlCellDataAccessObject> {
 
     public static XmlTableCell of(Cell cell) {
-        return new XmlTableCell(cell);
+        return of(cell, XmlCellDataAccessObject.INSTANCE);
     }
 
-    private XmlTableCell(Cell cell) {
-        super(cell, XmlCellDataAccessObject.INSTANCE);
+    public static XmlTableCell of(Cell cell, XmlCellDataAccessObject dao) {
+        return new XmlTableCell(cell, dao);
+    }
+
+    private XmlTableCell(Cell cell, XmlCellDataAccessObject dao) {
+        super(cell, dao);
     }
 
     @Override
     public int getColumnIndex() {
         return getCell().getIndex() - 1;
+    }
+
+    @Override
+    protected XmlTableCell createWithCellDataAccessObject(XmlCellDataAccessObject dao) {
+        return new XmlTableCell(getCell(), dao);
+    }
+
+    @EqualsAndHashCode.Include
+    @SuppressWarnings("unused")
+    private Object getCellForEquals() {
+        return getCell();
+    }
+
+    @SuppressWarnings("unused")
+    @ToString.Include(name = "value")
+    private String getCellData() {
+        return getStringValue();
     }
 }

@@ -22,9 +22,17 @@ import lombok.NoArgsConstructor;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
+import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -46,7 +54,7 @@ final class XmlTableHelper {
         endRow = Math.min(endRow, getLastRowNum(sheet) + 1); // endRow is exclusive
         for (int rowNum = startRow; rowNum < endRow; rowNum++) {
             Row row = sheet.getRowAt(rowNum + 1);
-            TableCellAddress address = find(row, startColumn, endColumn, predicate);
+            TableCellAddress address = find(row, rowNum, startColumn, endColumn, predicate);
             if (address != NOT_FOUND) {
                 return address;
             }
@@ -54,14 +62,16 @@ final class XmlTableHelper {
         return NOT_FOUND;
     }
 
-    static TableCellAddress find(Row row, int startColumn, int endColumn, Predicate<Cell> predicate) {
+    static TableCellAddress find(@Nullable Row row, int rowNum, int startColumn, int endColumn, Predicate<Cell> predicate) {
         if (row != null) {
-            for (Cell cell : row.getCells()) {
+            for (Map.Entry<Integer, Cell> e : row.getCellMap().entrySet()) {
+                @Nullable Cell cell = e.getValue();
+                //noinspection ConstantConditions
                 if (cell != null) {
-                    int column = cell.getIndex() - 1;
-                    if (startColumn <= column && column < endColumn) {
+                    int column = e.getKey() - 1;
+                    if ((startColumn <= column) && (column < endColumn)) {
                         if (predicate.test(cell)) {
-                            return TableCellAddress.of(row.getIndex() - 1, column);
+                            return TableCellAddress.of(rowNum, column);
                         }
                     }
                 }
@@ -71,28 +81,45 @@ final class XmlTableHelper {
     }
 
     static int getLastRowNum(Worksheet sheet) {
-        return sheet.getTable().getRowMap().lastKey() - 1;
+        TreeMap<Integer, Row> rows = sheet.getTable().getRowMap();
+        return rows.isEmpty() ? -1 : rows.lastKey() - 1;
     }
 
-    static Predicate<Cell> equalsPredicate(Object expected) {
+    static Predicate<Cell> equalsPredicate(@Nullable Object expected) {
         if (expected instanceof String) {
-            return (cell) -> Objects.equals(cell.getData$(), expected);
+            return cell -> Objects.equals(cell.getData$(), expected);
         } else if (expected instanceof Integer || expected instanceof Long) {
-            return (cell) -> {
+            return cell -> {
                 Object data = cell.getData();
                 return (data instanceof Number) &&
                         ((Number) data).longValue() == ((Number) expected).longValue();
             };
         } else if (expected instanceof Number) {
-            return (cell) -> {
+            return cell -> {
                 Object data = cell.getData();
                 return (data instanceof Number) &&
                         Math.abs(((Number) data).doubleValue() - ((Number) expected).doubleValue()) < 1e-6;
             };
         } else if (expected instanceof Boolean) {
-            return (cell) -> Objects.equals(expected, cell.booleanValue());
+            return cell -> Objects.equals("Boolean", cell.getXLDataType()) &&
+                    Objects.equals(expected, cell.booleanValue());
+        } else if (expected instanceof Temporal) {
+            Instant instant;
+            if (expected instanceof Instant) {
+                instant = (Instant) expected;
+            } else if (expected instanceof ZonedDateTime) {
+                instant = ((ZonedDateTime) expected).toInstant();
+            } else if (expected instanceof OffsetDateTime) {
+                instant = ((OffsetDateTime) expected).toInstant();
+            } else {
+                return cell -> false;
+            }
+            Date date = Date.from(instant);
+            return cell -> Objects.equals(date, cell.getData());
+        } else if (expected == null) {
+            return cell -> Objects.equals("#N/A", cell.getData());
         } else {
-            return (cell) -> Objects.equals(expected, cell.getData());
+            return cell -> Objects.equals(expected, cell.getData());
         }
     }
 }
