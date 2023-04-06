@@ -1,7 +1,7 @@
 ![java-version](https://img.shields.io/badge/Java-11-brightgreen?style=flat-square)
 ![jitpack-last-release](https://jitpack.io/v/spacious-team/table-wrapper-xml-impl.svg?style=flat-square)
 [![Unit tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fspacious-team%2Ftable-wrapper-xml-impl%2Fbadge%3Fref%3Ddevelop&style=flat-square&label=Test&logo=none)](
-https://github.com/spacious-team/table-wrapper-csv-impl/actions/workflows/unit-tests.yml)
+https://github.com/spacious-team/table-wrapper-xml-impl/actions/workflows/unit-tests.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/spacious-team/table-wrapper-xml-impl/develop?label=Coverage&style=flat-square&token=AWW0J6C1EI)](
 https://codecov.io/gh/spacious-team/table-wrapper-xml-impl)
 
