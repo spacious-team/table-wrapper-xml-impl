@@ -41,9 +41,10 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
     }
 
     @Override
-    public TableCellAddress find(int startRow, int endRow, int startColumn, int endColumn, Predicate<Object> cellValuePredicate) {
+    public TableCellAddress find(int startRow, int endRow, int startColumn, int endColumn,
+                                 Predicate<@Nullable Object> cellValuePredicate) {
         return XmlTableHelper.find(sheet, startRow, endRow, startColumn, endColumn,
-                (cell) -> cellValuePredicate.test(cell.getData()));
+                cell -> cellValuePredicate.test(cell.getData()));
     }
 
     @Override
