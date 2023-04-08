@@ -24,7 +24,7 @@ import nl.fountain.xelem.excel.Cell;
 import org.spacious_team.table_wrapper.api.AbstractTableCell;
 
 @ToString
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class XmlTableCell extends AbstractTableCell<Cell, XmlCellDataAccessObject> {
 
     public static XmlTableCell of(Cell cell) {
@@ -47,12 +47,6 @@ public class XmlTableCell extends AbstractTableCell<Cell, XmlCellDataAccessObjec
     @Override
     protected XmlTableCell createWithCellDataAccessObject(XmlCellDataAccessObject dao) {
         return new XmlTableCell(getCell(), dao);
-    }
-
-    @EqualsAndHashCode.Include
-    @SuppressWarnings("unused")
-    private Object getCellForEquals() {
-        return getCell();
     }
 
     @SuppressWarnings("unused")

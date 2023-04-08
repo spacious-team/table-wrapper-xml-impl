@@ -33,14 +33,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-import static nl.jqno.equalsverifier.Warning.ALL_FIELDS_SHOULD_BE_USED;
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class XmlTableCellTest {
 
-    SSCell ssCell = new SSCell();
+    SSCell ssCell;
 
     @BeforeEach
     void setUp() {
@@ -177,7 +176,6 @@ class XmlTableCellTest {
         EqualsVerifier
                 .forClass(XmlTableCell.class)
                 .suppress(STRICT_INHERITANCE) // no subclass for test
-                .suppress(ALL_FIELDS_SHOULD_BE_USED)
                 .verify();
     }
 
