@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
@@ -147,6 +148,25 @@ class XmlTableCellTest {
         LocalDateTime expected = instant.atZone(ZoneId.systemDefault())
                         .toLocalDateTime();
         assertEquals(expected, cell.getLocalDateTimeValue());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2023-03-13T20:15:30Z", "2023-03-13T20:15:30.123Z"})
+    void getLocalDateTimeValue_withZoneId(String dateTime) {
+        Instant instant = Instant.parse(dateTime);
+        Date cellValue = Date.from(instant);
+        ssCell.setData(cellValue);
+        LocalDateTime expected = instant.atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        int offsetSeconds = ZoneId.systemDefault()
+                .getRules()
+                .getOffset(expected)
+                .getTotalSeconds();
+        ZoneId zoneIdPlusHour = ZoneOffset.ofTotalSeconds(offsetSeconds + 3600);
+
+        assertEquals(expected, cell.getLocalDateTimeValue());
+        assertEquals(expected, cell.getLocalDateTimeValue(ZoneOffset.systemDefault()));
+        assertEquals(expected.plusHours(1), cell.getLocalDateTimeValue(zoneIdPlusHour));
     }
 
     @Test
