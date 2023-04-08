@@ -21,8 +21,6 @@ package org.spacious_team.table_wrapper.xml;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.AbstractTable;
 import org.spacious_team.table_wrapper.api.TableCellRange;
@@ -38,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class XmlTableTest {
 
     XmlTable xmlTable;
