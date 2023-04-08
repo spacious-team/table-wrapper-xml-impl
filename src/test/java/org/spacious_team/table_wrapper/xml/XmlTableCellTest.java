@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.spacious_team.table_wrapper.api.TableCell;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -40,18 +39,18 @@ import static org.mockito.Mockito.mock;
 class XmlTableCellTest {
 
     SSCell ssCell;
+    XmlTableCell cell;
 
     @BeforeEach
     void setUp() {
         ssCell = new SSCell();
+        cell = XmlTableCell.of(ssCell);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 0, 1, 2, 3})
     void getColumnIndex(int colNum) {
         ssCell.setIndex(colNum + 1);
-        TableCell cell = XmlTableCell.of(ssCell);
-
         assertEquals(colNum, cell.getColumnIndex());
     }
 
@@ -59,7 +58,6 @@ class XmlTableCellTest {
     @MethodSource("cellValues")
     void getValue(Object expected) {
         ssCell.setData(expected);
-        TableCell cell = XmlTableCell.of(ssCell);
         if (expected instanceof Number) {
             expected = ((Number) expected).doubleValue();
         }
@@ -87,7 +85,6 @@ class XmlTableCellTest {
     @ValueSource(ints = {-1, 0, 2014})
     void getIntValue(int expected) {
         ssCell.setData(expected);
-        TableCell cell = XmlTableCell.of(ssCell);
         assertEquals(expected, cell.getIntValue());
     }
 
@@ -95,7 +92,6 @@ class XmlTableCellTest {
     @ValueSource(longs = {-1, 0, 2014})
     void getLongValue(long expected) {
         ssCell.setData(expected);
-        TableCell cell = XmlTableCell.of(ssCell);
         assertEquals(expected, cell.getLongValue());
     }
 
@@ -103,7 +99,6 @@ class XmlTableCellTest {
     @ValueSource(doubles = {0, 10.24, 10.24000, 10.2400000000001, 10.2400000000000000000000000000000000001})
     void getDoubleValue(double expected) {
         ssCell.setData(expected);
-        TableCell cell = XmlTableCell.of(ssCell);
         assertEquals(expected, cell.getDoubleValue());
     }
 
@@ -112,7 +107,6 @@ class XmlTableCellTest {
     void getBigDecimalValue(String value) {
         BigDecimal expected = new BigDecimal(value);
         ssCell.setData(expected);
-        TableCell cell = XmlTableCell.of(ssCell);
         assertEquals(expected, cell.getBigDecimalValue());
     }
 
@@ -120,7 +114,6 @@ class XmlTableCellTest {
     @ValueSource(strings = {"10.24", "abc", "This is", "Это есть", "true", "0"})
     void getStringValue(String expected) {
         ssCell.setData(expected);
-        TableCell cell = XmlTableCell.of(ssCell);
         assertEquals(expected, cell.getStringValue());
     }
 
@@ -130,7 +123,6 @@ class XmlTableCellTest {
         Instant expected = Instant.parse(dateTime);
         Date cellValue = Date.from(expected);
         ssCell.setData(cellValue);
-        TableCell cell = XmlTableCell.of(ssCell);
         assertEquals(expected, cell.getInstantValue());
     }
 
@@ -140,7 +132,6 @@ class XmlTableCellTest {
         Instant instant = Instant.parse(dateTime);
         Date cellValue = Date.from(instant);
         ssCell.setData(cellValue);
-        TableCell cell = XmlTableCell.of(ssCell);
         // xml cell value lost nanos part, calc expected instant
         Instant expected = Instant.parse("2023-03-13T20:15:30.123Z");
 
@@ -153,7 +144,6 @@ class XmlTableCellTest {
         Instant instant = Instant.parse(dateTime);
         Date cellValue = Date.from(instant);
         ssCell.setData(cellValue);
-        TableCell cell = XmlTableCell.of(ssCell);
         LocalDateTime expected = instant.atZone(ZoneId.systemDefault())
                         .toLocalDateTime();
         assertEquals(expected, cell.getLocalDateTimeValue());
@@ -161,7 +151,6 @@ class XmlTableCellTest {
 
     @Test
     void createWithCellDataAccessObject() {
-        XmlTableCell cell = XmlTableCell.of(ssCell);
         XmlCellDataAccessObject dao = mock(XmlCellDataAccessObject.class);
 
         XmlTableCell actual = cell.createWithCellDataAccessObject(dao);
@@ -181,9 +170,7 @@ class XmlTableCellTest {
 
     @Test
     void testToString() {
-        SSCell ssCell = new SSCell();
         ssCell.setData("data");
-        TableCell cell = XmlTableCell.of(ssCell);
         assertEquals("XmlTableCell(value=data)", cell.toString());
     }
 }
