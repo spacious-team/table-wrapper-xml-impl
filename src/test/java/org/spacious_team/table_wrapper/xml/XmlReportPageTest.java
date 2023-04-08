@@ -64,7 +64,7 @@ class XmlReportPageTest {
     void getRow() {
         int row = 1;
         Worksheet worksheet = spy(getWorksheet());
-        XmlReportPage reportPage = spy(new XmlReportPage(worksheet));
+        XmlReportPage reportPage = new XmlReportPage(worksheet);
 
         @Nullable XmlTableRow actual = reportPage.getRow(row);
 
@@ -91,7 +91,7 @@ class XmlReportPageTest {
     }
 
     @Test
-    void findEmptyRowNoEmpty() {
+    void findEmptyRow_noEmpty() {
         Worksheet worksheet = getWorksheet();
         XmlReportPage reportPage = new XmlReportPage(worksheet);
 
@@ -99,7 +99,7 @@ class XmlReportPageTest {
     }
 
     @Test
-    void findEmptyRowOnEmptySheet() {
+    void findEmptyRow_onEmptySheet() {
         Worksheet worksheet = new SSWorksheet("test sheet");
         XmlReportPage reportPage = new XmlReportPage(worksheet);
 
@@ -107,7 +107,7 @@ class XmlReportPageTest {
     }
 
     @Test
-    void findEmptyRowOnSheetOfEmptyRow() {
+    void findEmptyRow_onSheetOfEmptyRow() {
         Worksheet worksheet = new SSWorksheet("test sheet");
         worksheet.addRowAt(1, null);
         XmlReportPage reportPage = new XmlReportPage(worksheet);
