@@ -31,6 +31,7 @@ import org.spacious_team.table_wrapper.api.TableHeaderColumn;
 
 import java.time.ZoneOffset;
 
+import static nl.jqno.equalsverifier.Warning.NONFINAL_FIELDS;
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -78,7 +79,7 @@ class XmlTableTest {
         EqualsVerifier
                 .forClass(XmlTable.class)
                 .suppress(STRICT_INHERITANCE) // no subclass for test
-                .withIgnoredFields("cellDataAccessObject")
+                .suppress(NONFINAL_FIELDS)
                 .verify();
     }
 

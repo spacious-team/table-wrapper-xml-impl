@@ -36,7 +36,6 @@ public class XmlTable extends AbstractTable<XmlTableRow, Cell> {
 
     @Getter
     @Setter
-    @EqualsAndHashCode.Exclude
     private CellDataAccessObject<Cell, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
 
     protected <T extends Enum<T> & TableHeaderColumn>
