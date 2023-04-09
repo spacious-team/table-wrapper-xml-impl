@@ -150,7 +150,6 @@ class XmlTableRowTest {
         when(xmlRow.getCellMap()).thenReturn(new TreeMap<>(cells));
         when(xmlRow.getIndex()).thenReturn(1);
 
-        //noinspection ConstantConditions
         assertTrue(row.rowContains(null));
         assertTrue(row.rowContains("test"));
         assertTrue(row.rowContains(true));
