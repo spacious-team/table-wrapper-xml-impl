@@ -45,7 +45,6 @@ class XmlTableHelperTest {
                         Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE));
         assertEquals(TableCellAddress.of(1, 1),
                 XmlTableHelper.find(worksheet, 12, 0, 3, 0, 2));
-        //noinspection ConstantConditions
         assertEquals(TableCellAddress.of(2, 0),
                 XmlTableHelper.find(worksheet, null, 0, 3, 0, 2));
         assertSame(TableCellAddress.NOT_FOUND,

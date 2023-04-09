@@ -41,7 +41,7 @@ import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
 @NoArgsConstructor(access = PRIVATE)
 final class XmlTableHelper {
 
-    static TableCellAddress find(Worksheet sheet, Object expected,
+    static TableCellAddress find(Worksheet sheet, @Nullable Object expected,
                                  int startRow, int endRow,
                                  int startColumn, int endColumn) {
         return find(sheet, startRow, endRow, startColumn, endColumn, equalsPredicate(expected));
