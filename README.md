@@ -9,6 +9,11 @@ https://codecov.io/gh/spacious-team/table-wrapper-xml-impl)
 Предоставляет реализацию `Table Wrapper API` для удобного доступа к табличным данным, сохраненным в файлах формата
 Microsoft Office Excel 2003 [SpreadsheetML](https://en.wikipedia.org/wiki/SpreadsheetML) (xml).
 
+Если не используется Spring Boot Starter, то сначала в реестр доступных фабрик нужно зарегистрировать фабрику xml таблиц:
+```java
+TableFactoryRegistry.add(new XmlTableFactory());
+```
+
 Пример создания таблиц с первого листа файла `1.xml`
 ```java
 ExcelReader reader = new ExcelReader();
