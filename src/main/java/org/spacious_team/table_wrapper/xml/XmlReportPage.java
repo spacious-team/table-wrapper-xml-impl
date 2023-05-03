@@ -68,22 +68,24 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
     @Override
     public int findEmptyRow(int startRow) {
         int lastRowNum = startRow;
-        LAST_ROW:
         for (int n = getLastRowNum(); lastRowNum <= n; lastRowNum++) {
             Row row = sheet.getRowAt(lastRowNum + 1);
             if (row == null || row.getCellMap().isEmpty()) {
-                return lastRowNum; // all row cells blank
+                return lastRowNum;  // all row cells blank
             }
+            boolean isRowEmpty = true;
             for (@Nullable Cell cell : row.getCells()) {
                 @Nullable Object value;
                 if (!(cell == null
                         || ((value = XmlCellDataAccessObject.INSTANCE.getValue(cell)) == null)
                         || (value instanceof String) && (value.toString().isEmpty()))) {
-                    // not empty
-                    continue LAST_ROW;
+                    isRowEmpty = false;
+                    break;
                 }
             }
-            return lastRowNum; // all row cells blank
+            if (isRowEmpty) {
+                return lastRowNum;  // all row cells blank
+            }
         }
         return -1;
     }
