@@ -1,6 +1,6 @@
 /*
  * Table Wrapper Xml SpreadsheetML Impl
- * Copyright (C) 2020  Vitalii Ananev <spacious-team@ya.ru>
+ * Copyright (C) 2020  Spacious Team <spacious-team@ya.ru>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,15 +19,17 @@
 package org.spacious_team.table_wrapper.xml;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
+@Slf4j
 @RequiredArgsConstructor
 public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
 
@@ -39,15 +41,19 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
     }
 
     @Override
-    public TableCellAddress find(int startRow, int endRow, int startColumn, int endColumn, Predicate<Object> cellValuePredicate) {
+    public TableCellAddress find(int startRow, int endRow, int startColumn, int endColumn,
+                                 Predicate<@Nullable Object> cellValuePredicate) {
         return XmlTableHelper.find(sheet, startRow, endRow, startColumn, endColumn,
-                (cell) -> cellValuePredicate.test(cell.getData()));
+                cell -> cellValuePredicate.test(cell.getData()));
     }
 
     @Override
-    public XmlTableRow getRow(int i) {
+    public @Nullable XmlTableRow getRow(int i) {
+        if (i < 0 || i > getLastRowNum()) {
+            return null;
+        }
         Row row = sheet.getRowAt(i + 1);
-        return (row == null) ? null : new XmlTableRow(row);
+        return (row == null) ? null : XmlTableRow.of(row);
     }
 
     @Override
@@ -62,22 +68,24 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
     @Override
     public int findEmptyRow(int startRow) {
         int lastRowNum = startRow;
-        LAST_ROW:
         for (int n = getLastRowNum(); lastRowNum <= n; lastRowNum++) {
             Row row = sheet.getRowAt(lastRowNum + 1);
             if (row == null || row.getCellMap().isEmpty()) {
-                return lastRowNum; // all row cells blank
+                return lastRowNum;  // all row cells blank
             }
-            for (Cell cell : row.getCells()) {
-                Object value;
+            boolean isRowEmpty = true;
+            for (@Nullable Cell cell : row.getCells()) {
+                @Nullable Object value;
                 if (!(cell == null
                         || ((value = XmlCellDataAccessObject.INSTANCE.getValue(cell)) == null)
                         || (value instanceof String) && (value.toString().isEmpty()))) {
-                    // not empty
-                    continue LAST_ROW;
+                    isRowEmpty = false;
+                    break;
                 }
             }
-            return lastRowNum; // all row cells blank
+            if (isRowEmpty) {
+                return lastRowNum;  // all row cells blank
+            }
         }
         return -1;
     }

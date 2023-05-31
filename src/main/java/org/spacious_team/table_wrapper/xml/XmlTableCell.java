@@ -1,6 +1,6 @@
 /*
  * Table Wrapper Xml SpreadsheetML Impl
- * Copyright (C) 2020  Vitalii Ananev <spacious-team@ya.ru>
+ * Copyright (C) 2020  Spacious Team <spacious-team@ya.ru>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,18 +18,40 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import nl.fountain.xelem.excel.Cell;
 import org.spacious_team.table_wrapper.api.AbstractTableCell;
 
-public class XmlTableCell extends AbstractTableCell<Cell> {
+@ToString
+@EqualsAndHashCode(callSuper = true)
+public class XmlTableCell extends AbstractTableCell<Cell, XmlCellDataAccessObject> {
 
+    public static XmlTableCell of(Cell cell) {
+        return of(cell, XmlCellDataAccessObject.INSTANCE);
+    }
 
-    public XmlTableCell(Cell cell) {
-        super(cell, XmlCellDataAccessObject.INSTANCE);
+    public static XmlTableCell of(Cell cell, XmlCellDataAccessObject dao) {
+        return new XmlTableCell(cell, dao);
+    }
+
+    private XmlTableCell(Cell cell, XmlCellDataAccessObject dao) {
+        super(cell, dao);
     }
 
     @Override
     public int getColumnIndex() {
         return getCell().getIndex() - 1;
+    }
+
+    @Override
+    protected XmlTableCell createWithCellDataAccessObject(XmlCellDataAccessObject dao) {
+        return new XmlTableCell(getCell(), dao);
+    }
+
+    @SuppressWarnings("unused")
+    @ToString.Include(name = "value")
+    private String getCellData() {
+        return getStringValue();
     }
 }

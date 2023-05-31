@@ -1,6 +1,6 @@
 /*
  * Table Wrapper Xml SpreadsheetML Impl
- * Copyright (C) 2020  Vitalii Ananev <spacious-team@ya.ru>
+ * Copyright (C) 2020  Spacious Team <spacious-team@ya.ru>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,31 +18,36 @@
 
 package org.spacious_team.table_wrapper.xml;
 
-import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
+import nl.fountain.xelem.excel.Cell;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
 import org.spacious_team.table_wrapper.api.AbstractTable;
 import org.spacious_team.table_wrapper.api.CellDataAccessObject;
 import org.spacious_team.table_wrapper.api.Table;
 import org.spacious_team.table_wrapper.api.TableCellRange;
-import org.spacious_team.table_wrapper.api.TableColumnDescription;
+import org.spacious_team.table_wrapper.api.TableHeaderColumn;
 
 @ToString(callSuper = true)
-public class XmlTable extends AbstractTable<XmlTableRow> {
+@EqualsAndHashCode(callSuper = true)
+public class XmlTable extends AbstractTable<XmlTableRow, Cell> {
 
-    @Getter(AccessLevel.PROTECTED)
-    private final CellDataAccessObject<?, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
+    @Getter
+    @Setter
+    private CellDataAccessObject<Cell, XmlTableRow> cellDataAccessObject = XmlCellDataAccessObject.INSTANCE;
 
+    protected <T extends Enum<T> & TableHeaderColumn>
     XmlTable(AbstractReportPage<XmlTableRow> reportPage,
              String tableName,
              TableCellRange tableRange,
-             Class<? extends TableColumnDescription> headerDescription,
+             Class<T> headerDescription,
              int headersRowCount) {
         super(reportPage, tableName, tableRange, headerDescription, headersRowCount);
     }
 
-    XmlTable(AbstractTable<XmlTableRow> table, int appendDataRowsToTop, int appendDataRowsToBottom) {
+    protected XmlTable(AbstractTable<XmlTableRow, Cell> table, int appendDataRowsToTop, int appendDataRowsToBottom) {
         super(table, appendDataRowsToTop, appendDataRowsToBottom);
     }
 

@@ -1,6 +1,6 @@
 /*
  * Table Wrapper Xml SpreadsheetML Impl
- * Copyright (C) 2020  Vitalii Ananev <spacious-team@ya.ru>
+ * Copyright (C) 2020  Spacious Team <spacious-team@ya.ru>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,28 +18,36 @@
 
 package org.spacious_team.table_wrapper.xml;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import nl.fountain.xelem.excel.Cell;
 import nl.fountain.xelem.excel.Row;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.AbstractReportPageRow;
 import org.spacious_team.table_wrapper.api.TableCell;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
 
+import static lombok.AccessLevel.PACKAGE;
 import static org.spacious_team.table_wrapper.api.TableCellAddress.NOT_FOUND;
 import static org.spacious_team.table_wrapper.xml.XmlTableHelper.equalsPredicate;
 
-@RequiredArgsConstructor
+@ToString
+@EqualsAndHashCode(callSuper = false)
+@RequiredArgsConstructor(staticName = "of")
 public class XmlTableRow extends AbstractReportPageRow {
 
-    @Getter
+    @Getter(PACKAGE)
     private final Row row;
 
     @Override
-    public TableCell getCell(int i) {
+    public @Nullable TableCell getCell(int i) {
         Cell cell = row.getCellAt(i + 1);
-        return (cell == null) ? null : new XmlTableCell(cell);
+        return (cell == null) ? null : XmlTableCell.of(cell);
     }
 
     @Override
@@ -49,21 +57,31 @@ public class XmlTableRow extends AbstractReportPageRow {
 
     @Override
     public int getFirstCellNum() {
-        return row.getCellMap().firstKey() - 1;
+        try {
+            return row.getCellMap().firstKey() - 1;
+        } catch (NoSuchElementException ignore) {
+            return -1;
+        }
     }
 
     @Override
     public int getLastCellNum() {
-        return row.getCellMap().lastKey() - 1;
+        try {
+            return row.getCellMap().lastKey() - 1;
+        } catch (NoSuchElementException ignore) {
+            return -1;
+        }
     }
 
     @Override
-    public boolean rowContains(Object expected) {
-        return XmlTableHelper.find(row, 0, Integer.MAX_VALUE, equalsPredicate(expected)) != NOT_FOUND;
+    public boolean rowContains(@Nullable Object expected) {
+        return XmlTableHelper.find(row, row.getIndex() - 1, 0, Integer.MAX_VALUE, equalsPredicate(expected)) != NOT_FOUND;
     }
 
     @Override
-    public Iterator<TableCell> iterator() {
-        return new ReportPageRowIterator<>(row.getCells().iterator(), XmlTableCell::new);
+    public Iterator<@Nullable TableCell> iterator() {
+        Function<@Nullable Cell, @Nullable TableCell> converter =
+                cell -> (cell == null) ? null : XmlTableCell.of(cell);
+        return new ReportPageRowIterator<>(row.getCells().iterator(), converter);
     }
 }
