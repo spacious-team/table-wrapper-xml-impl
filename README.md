@@ -21,9 +21,9 @@ ExcelReader reader = new ExcelReader();
 Workbook book = reader.getWorkbook(Files.newInputStream(Path.of("1.xml")));
 ReportPage reportPage = new XmlReportPage(book.getWorksheetAt(0));
 
-Table table1 = reportPage.create("Table 1 description", ...);
+Table table1 = reportPage.createTable("Table 1 description", ...);
 ...
-Table tableN = reportPage.create("Table N description", ...);
+Table tableN = reportPage.createTable("Table N description", ...);
 ```
 Объекты `table`...`tableN` используются для удобного доступа к строкам и к значениям ячеек.
 

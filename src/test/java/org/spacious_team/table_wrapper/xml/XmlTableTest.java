@@ -46,7 +46,7 @@ class XmlTableTest {
         //noinspection unchecked
         AbstractReportPage<XmlTableRow> reportPage = mock(AbstractReportPage.class);
         //noinspection ConstantConditions
-        when(reportPage.getRow(tableRange.getFirstRow() + 1)).thenReturn(mock(XmlTableRow.class)); // header row
+        when(reportPage.getRow(tableRange.getFirstRow())).thenReturn(mock(XmlTableRow.class)); // header row
         xmlTable = new XmlTable(reportPage, "table name", tableRange, TableHeader.class, 1);
     }
 
