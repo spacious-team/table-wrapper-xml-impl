@@ -95,7 +95,7 @@ class XmlReportPageTest {
         Worksheet worksheet = getWorksheet();
         XmlReportPage reportPage = new XmlReportPage(worksheet);
 
-        assertEquals(-1, reportPage.findEmptyRow(0));
+        assertEquals(-1, reportPage.findEmptyRow(0, Integer.MAX_VALUE));
     }
 
     @Test
@@ -103,7 +103,7 @@ class XmlReportPageTest {
         Worksheet worksheet = new SSWorksheet("test sheet");
         XmlReportPage reportPage = new XmlReportPage(worksheet);
 
-        assertEquals(-1, reportPage.findEmptyRow(0));
+        assertEquals(-1, reportPage.findEmptyRow(0, Integer.MAX_VALUE));
     }
 
     @Test
@@ -112,7 +112,7 @@ class XmlReportPageTest {
         worksheet.addRowAt(1, null);
         XmlReportPage reportPage = new XmlReportPage(worksheet);
 
-        assertEquals(0, reportPage.findEmptyRow(0));
+        assertEquals(0, reportPage.findEmptyRow(0, Integer.MAX_VALUE));
     }
 
     @Test
@@ -122,7 +122,7 @@ class XmlReportPageTest {
         worksheet.addCellAt(3, 2).setData("");
         XmlReportPage reportPage = new XmlReportPage(worksheet);
 
-        assertEquals(2, reportPage.findEmptyRow(0));
+        assertEquals(2, reportPage.findEmptyRow(0, Integer.MAX_VALUE));
     }
 
     private static Worksheet getWorksheet() {

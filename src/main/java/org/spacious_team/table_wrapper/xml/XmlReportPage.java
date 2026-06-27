@@ -25,6 +25,8 @@ import nl.fountain.xelem.excel.Row;
 import nl.fountain.xelem.excel.Worksheet;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spacious_team.table_wrapper.api.AbstractReportPage;
+import org.spacious_team.table_wrapper.api.EmptyRowPredicate;
+import org.spacious_team.table_wrapper.api.ReportPageRow;
 import org.spacious_team.table_wrapper.api.TableCellAddress;
 
 import java.util.function.Predicate;
@@ -61,14 +63,22 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
         return XmlTableHelper.getLastRowNum(sheet);
     }
 
-    /**
-     * @param startRow first row for check
-     * @return index of first empty row or -1 if not found
-     */
     @Override
-    public int findEmptyRow(int startRow) {
-        int lastRowNum = startRow;
-        for (int n = getLastRowNum(); lastRowNum <= n; lastRowNum++) {
+    public int findRow(int startRow, int endRow, Predicate<@Nullable ReportPageRow> predicate) {
+        if (predicate == EmptyRowPredicate.INSTANCE) {
+            return findEmptyRow(startRow, endRow);  // optimized impl
+        }
+        return super.findRow(startRow, endRow, predicate);
+    }
+
+    /**
+     * @param startRow search rows start from this
+     * @param endRow   search rows excluding this, can handle values greater than real rows count
+     * @return the index of the first empty row, or {@code -1} if no empty row is found
+     */
+    int findEmptyRow(int startRow, int endRow) {
+        int lastRowNum = Math.max(0, startRow);
+        for (int n = getLastRowNum(); lastRowNum <= n && lastRowNum < endRow; lastRowNum++) {
             Row row = sheet.getRowAt(lastRowNum + 1);
             if (row == null || row.getCellMap().isEmpty()) {
                 return lastRowNum;  // all row cells blank
