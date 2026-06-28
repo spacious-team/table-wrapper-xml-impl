@@ -119,6 +119,14 @@ class XmlReportPageTest {
     }
 
     @Test
+    void findEmptyRow_limitEnd_noEmpty() {
+        Worksheet worksheet = getWorksheet();
+        XmlReportPage reportPage = new XmlReportPage(worksheet);
+
+        assertEquals(-1, reportPage.findEmptyRow(0, 1));
+    }
+
+    @Test
     void findEmptyRow_onEmptySheet() {
         Worksheet worksheet = new SSWorksheet("test sheet");
         XmlReportPage reportPage = new XmlReportPage(worksheet);
@@ -136,10 +144,19 @@ class XmlReportPageTest {
     }
 
     @Test
-    void findEmptyRow() {
+    void findEmptyRow_allCellsAreEmpty() {
         Worksheet worksheet = getWorksheet();
         worksheet.addCellAt(3, 1).setData("");
         worksheet.addCellAt(3, 2).setData("");
+        XmlReportPage reportPage = new XmlReportPage(worksheet);
+
+        assertEquals(2, reportPage.findEmptyRow(0, Integer.MAX_VALUE));
+    }
+
+    @Test
+    void findEmptyRow_row2IsNull() {
+        Worksheet worksheet = getWorksheet();
+        worksheet.addCellAt(4, 1).setData("");  // zero based row num = 3, zero based row 2 now is null
         XmlReportPage reportPage = new XmlReportPage(worksheet);
 
         assertEquals(2, reportPage.findEmptyRow(0, Integer.MAX_VALUE));
@@ -149,7 +166,7 @@ class XmlReportPageTest {
         Worksheet worksheet = new SSWorksheet("test sheet");
         worksheet.addCellAt(1, 1).setData("11");
         worksheet.addCellAt(1, 2).setData("12");
-        worksheet.addCellAt(2, 1).setData("21");
+        worksheet.addCellAt(2, 1).setData(21);
         worksheet.addCellAt(2, 2).setData("22");
         return worksheet;
     }

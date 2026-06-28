@@ -80,21 +80,21 @@ public class XmlReportPage extends AbstractReportPage<XmlTableRow> {
         int lastRowNum = Math.max(0, startRow);
         for (int n = getLastRowNum(); lastRowNum <= n && lastRowNum < endRow; lastRowNum++) {
             Row row = sheet.getRowAt(lastRowNum + 1);
-            if (row == null || row.getCellMap().isEmpty()) {
-                return lastRowNum;  // all row cells blank
+            if (row == null || row.getCellMap() == null || row.getCellMap().isEmpty()) {
+                return lastRowNum;  // all row cells are blank
             }
             boolean isRowEmpty = true;
             for (@Nullable Cell cell : row.getCells()) {
                 @Nullable Object value;
                 if (!(cell == null
                         || ((value = XmlCellDataAccessObject.INSTANCE.getValue(cell)) == null)
-                        || (value instanceof String) && (value.toString().isEmpty()))) {
+                        || ((value instanceof String) && (value.toString().isEmpty())))) {
                     isRowEmpty = false;
                     break;
                 }
             }
             if (isRowEmpty) {
-                return lastRowNum;  // all row cells blank
+                return lastRowNum;  // all row cells are blank
             }
         }
         return -1;
